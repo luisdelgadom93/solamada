@@ -1,149 +1,312 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { packages, addOns, terms } from "@/lib/packages";
 
 export const metadata: Metadata = {
   title: "Services",
   description:
-    "Solamada's mobile bar service for Houston events. Professional bartenders, crafted cocktails, full bar setup — customized for your celebration.",
+    "Solamada's mobile bar service for Houston events. One signature package, fully customizable with add-ons. Professional bartenders, crafted cocktails, full setup.",
 };
+
+// ── Icon components ────────────────────────────────────────────────────────
+
+function IconBar() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-gold mx-auto">
+      <rect x="6" y="28" width="36" height="14" rx="2" />
+      <path d="M10 28V18h28v10" />
+      <path d="M6 18h36" />
+      <path d="M16 28v-6M24 28v-6M32 28v-6" />
+      <path d="M2 42h44" />
+    </svg>
+  );
+}
+
+function IconClock() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-gold mx-auto">
+      <circle cx="24" cy="24" r="18" />
+      <path d="M24 12v12l8 5" />
+    </svg>
+  );
+}
+
+function IconWater() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-gold mx-auto">
+      <rect x="14" y="10" width="20" height="30" rx="4" />
+      <path d="M19 10V7M29 10V7" />
+      <path d="M14 20h20" />
+      <path d="M21 28h6M24 25v6" />
+    </svg>
+  );
+}
+
+function IconGlass() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-gold mx-auto">
+      <path d="M12 8h24l-6 20H18L12 8z" />
+      <path d="M18 28v10M30 28v10" />
+      <path d="M14 38h20" />
+    </svg>
+  );
+}
+
+function IconCup() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-gold mx-auto">
+      <path d="M14 10h20l-3 26H17L14 10z" />
+      <path d="M11 16h4M33 16h4" />
+      <path d="M17 36h14" />
+      <path d="M20 10V7M28 10V7" />
+    </svg>
+  );
+}
+
+function IconCocktail() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-gold mx-auto">
+      <path d="M10 8h28L24 28v12" />
+      <path d="M18 40h12" />
+      <path d="M10 8l14 14" />
+    </svg>
+  );
+}
+
+function IconClipboard() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-gold mx-auto">
+      <rect x="10" y="10" width="28" height="34" rx="2" />
+      <path d="M18 10V7h12v3" />
+      <path d="M16 22h16M16 28h10M16 34h12" />
+    </svg>
+  );
+}
+
+function IconEnvelope() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-gold mx-auto">
+      <rect x="6" y="12" width="36" height="26" rx="2" />
+      <path d="M6 14l18 14L42 14" />
+    </svg>
+  );
+}
+
+function IconBag() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-gold mx-auto">
+      <path d="M14 18V14a10 10 0 0120 0v4" />
+      <rect x="8" y="18" width="32" height="24" rx="2" />
+      <path d="M18 28h12" />
+    </svg>
+  );
+}
+
+// ── Page ───────────────────────────────────────────────────────────────────
+
+const packageFeatures = [
+  "1 professional TABC-certified bartender",
+  "2 cocktails of your choice from our menu",
+  "General bartending for your provided beer, wine & soft drinks",
+  "All non-alcoholic mixers, syrups, fresh juices & garnishes",
+  "Coolers stocked with ice and water",
+  "Plastic drinkware included",
+  "Delivery, full setup & breakdown",
+  "3-hour minimum service window",
+];
+
+const addOns = [
+  {
+    icon: <IconBar />,
+    name: "Solamada Signature Mobile Bar Stand",
+    desc: "Our custom bar brings the look and feel to your event.",
+  },
+  {
+    icon: <IconClock />,
+    name: "Additional Service Hours",
+    desc: "Extend the fun with extra service time.",
+  },
+  {
+    icon: <IconWater />,
+    name: "Water Dispenser",
+    desc: "Keeps your guests hydrated throughout the event.",
+  },
+  {
+    icon: <IconGlass />,
+    name: "Premium Drinkware",
+    desc: "Upgrade to premium glassware instead of plastic.",
+  },
+  {
+    icon: <IconCup />,
+    name: "Soft Drinks & Non-Alcoholic Drinks",
+    desc: "Coke, Sprite, juices, iced tea, lemonade & more. You choose — we bring and serve, or you provide and we serve.",
+  },
+  {
+    icon: <IconCocktail />,
+    name: "Additional Cocktails",
+    desc: "Expand your selection beyond 2 — add up to 2 more cocktails to your package.",
+  },
+];
+
+const bookingSteps = [
+  {
+    num: "01",
+    icon: <IconClipboard />,
+    title: "Request a Quote",
+    desc: "Share your event details, guest count, and select your included cocktails plus any add-ons you'd like. We'll create a custom quote for you.",
+    extra: null,
+  },
+  {
+    num: "02",
+    icon: <IconEnvelope />,
+    title: "Review & Reserve",
+    desc: "You'll receive your personalized quote by email. Approve it to secure your date with a 20% non-refundable deposit. We'll confirm and save your date.",
+    extra: null,
+  },
+  {
+    num: "03",
+    icon: <IconBag />,
+    title: "Prepare for the Event",
+    desc: "We'll send you a detailed spirits shopping guide based on your guest count and selected cocktails. Remaining payments are made before the event.",
+    extra: [
+      { pct: "20%", label: "To reserve your date" },
+      { pct: "30%", label: "1 week before the event" },
+      { pct: "50%", label: "The day before the event" },
+    ],
+  },
+  {
+    num: "04",
+    icon: <IconGlass />,
+    title: "We Handle the Bar",
+    desc: "We arrive, set up our bar, craft and serve your cocktails during the event, and handle the full breakdown. You just enjoy the experience.",
+    extra: null,
+  },
+];
 
 export default function ServicesPage() {
   return (
     <main className="pt-28 pb-20">
-      {/* Hero */}
-      <section className="bg-black text-white py-20 px-6 text-center">
-        <p className="font-mono text-sm text-gold tracking-widest uppercase mb-4">
-          What&apos;s Included
-        </p>
-        <h1 className="font-display text-5xl md:text-6xl font-bold mb-6">
-          Our Service
-        </h1>
-        <p className="text-white/70 text-lg max-w-xl mx-auto leading-relaxed">
-          A curated mobile bartending experience, built around your event — from cocktail selection to full bar setup and service.
-        </p>
-      </section>
 
-      {/* Package */}
+      {/* ── Section 1: Our Signature Package ── */}
       <section className="py-20 px-6">
-        <div className="max-w-3xl mx-auto">
-          {packages.map((pkg) => (
-            <div
-              key={pkg.slug}
-              className="bg-white rounded-card border-2 border-gold shadow-card p-8 md:p-12 relative"
-            >
-              {/* Badge */}
-              <span className="absolute -top-4 left-8 inline-block bg-gold text-white text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-pill">
-                Our Package
-              </span>
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="font-mono text-xs text-gold tracking-widest uppercase mb-4">
+            Our Signature Package
+          </p>
+          <h1 className="font-display text-5xl md:text-6xl font-bold text-black mb-4">
+            The Solamada Experience
+          </h1>
+          <p className="text-warm-gray text-lg max-w-xl mx-auto leading-relaxed mb-10">
+            Our mobile bar package brings the craft, the setup, and the service.
+            You bring the spirits and the celebration.
+          </p>
 
-              <div className="mb-2">
-                <h2 className="font-display text-3xl font-bold text-black">
-                  {pkg.name}
-                </h2>
-                <div className="flex flex-wrap gap-3 mt-3 mb-4">
-                  <span className="inline-flex items-center gap-1.5 bg-warm-white border border-light-gray rounded-pill px-3 py-1 text-xs font-medium text-warm-gray">
-                    ⏱ {pkg.minHours}hr minimum
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 bg-warm-white border border-light-gray rounded-pill px-3 py-1 text-xs font-medium text-warm-gray">
-                    👥 Up to {pkg.maxGuests} guests
-                  </span>
-                </div>
-                <p className="text-warm-gray max-w-lg">{pkg.description}</p>
-              </div>
+          {/* Feature grid in bordered box */}
+          <div className="bg-white rounded-card border-2 border-gold shadow-card p-8 md:p-10 text-left mb-6">
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {packageFeatures.map((feature) => (
+                <li key={feature} className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-gold shrink-0 mt-0.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 10l4 4 8-8" />
+                  </svg>
+                  <span className="text-black text-sm leading-snug">{feature}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-              {/* Features */}
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-8 mb-10">
-                {pkg.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <span className="text-gold font-bold mt-0.5 shrink-0">✓</span>
-                    <span className="text-black text-sm leading-snug">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  href="/book"
-                  className="inline-flex items-center justify-center rounded-pill bg-red px-8 py-4 font-body text-sm font-bold uppercase tracking-widest text-white shadow-btn transition-all duration-300 hover:bg-gold hover:shadow-btn-hover hover:-translate-y-0.5"
-                >
-                  Get a Quote
-                </Link>
-                <Link
-                  href="/menu"
-                  className="inline-flex items-center justify-center rounded-pill border-2 border-black px-8 py-4 font-body text-sm font-bold uppercase tracking-widest text-black transition-all duration-300 hover:bg-black hover:text-white"
-                >
-                  View Cocktail Menu
-                </Link>
-              </div>
-            </div>
-          ))}
+          {/* Callout */}
+          <div className="bg-gold/10 border border-gold/30 rounded-card px-6 py-4 flex items-center gap-3 text-left">
+            <span className="text-gold text-lg shrink-0">✦</span>
+            <p className="text-sm font-semibold text-black">
+              Start with The Solamada Experience, then customize it with add-ons below.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Add-ons */}
-      <section className="bg-warm-white py-16 px-6">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="font-display text-3xl font-bold text-black mb-2">
-            Customize Your Experience
-          </h2>
-          <p className="text-warm-gray mb-8">
-            Every event is different. We offer a range of add-ons to tailor the service to your needs — just mention what you&apos;re interested in when you reach out.
+      {/* ── Section 2: Add-Ons ── */}
+      <section className="bg-warm-white py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="font-mono text-xs text-gold tracking-widest uppercase mb-4">
+            Make It Yours
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-black mb-4">
+            Customize With Add-Ons
+          </h2>
+          <p className="text-warm-gray text-base max-w-lg mx-auto mb-12">
+            Enhance your bar experience with add-ons.
+            You choose what fits your event.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {addOns.map((addon) => (
               <div
                 key={addon.name}
-                className="bg-white rounded-card p-6 shadow-card border border-light-gray"
+                className="bg-white rounded-card p-6 shadow-card border border-light-gray text-center"
               >
-                <p className="font-semibold text-black mb-1">{addon.name}</p>
-                <p className="text-sm text-warm-gray leading-relaxed">{addon.description}</p>
+                <div className="mb-4">{addon.icon}</div>
+                <h3 className="font-display text-base font-bold text-black mb-2">
+                  {addon.name}
+                </h3>
+                <p className="text-sm text-warm-gray leading-relaxed">{addon.desc}</p>
               </div>
             ))}
           </div>
-          <p className="text-sm text-warm-gray mt-6">
+
+          <p className="text-xs text-warm-gray mt-8">
             Pricing for add-ons is included in your custom quote. A travel fee may apply depending on your event location.
           </p>
         </div>
       </section>
 
-      {/* Terms */}
-      <section className="py-16 px-6">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="font-display text-2xl font-bold text-black mb-6">
-            Good to Know
+      {/* ── Section 3: How Booking Works ── */}
+      <section className="bg-white py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="font-mono text-xs text-gold tracking-widest uppercase mb-4">
+            Simple &amp; Clear
+          </p>
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-black mb-14">
+            How Booking Works
           </h2>
-          <ul className="space-y-4">
-            {terms.map((term, i) => (
-              <li key={i} className="flex items-start gap-3 text-warm-gray text-sm leading-relaxed">
-                <span className="font-mono text-gold font-medium shrink-0 mt-0.5">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                {term}
-              </li>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-14">
+            {bookingSteps.map((step, i) => (
+              <div key={step.num} className="flex flex-col items-center text-center relative">
+                {/* Dotted connector line — desktop only */}
+                {i < bookingSteps.length - 1 && (
+                  <div className="hidden lg:block absolute top-6 left-[calc(50%+24px)] right-[-50%] border-t-2 border-dashed border-gold/30" />
+                )}
+                <span className="font-mono text-sm font-bold text-gold mb-3">{step.num}</span>
+                <div className="mb-4">{step.icon}</div>
+                <h3 className="font-display text-lg font-bold text-black mb-2">{step.title}</h3>
+                <p className="text-warm-gray text-sm leading-relaxed">{step.desc}</p>
+                {step.extra && (
+                  <ul className="mt-4 space-y-1 text-left w-full max-w-[180px] mx-auto">
+                    {step.extra.map((row) => (
+                      <li key={row.pct} className="flex items-baseline gap-2">
+                        <span className="font-mono text-sm font-bold text-gold shrink-0">{row.pct}</span>
+                        <span className="text-xs text-warm-gray">{row.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             ))}
-          </ul>
+          </div>
+
+          {/* CTA */}
+          <div className="flex flex-col items-center gap-3">
+            <Link
+              href="/book"
+              className="inline-flex items-center justify-center rounded-pill border-2 border-black px-10 py-4 font-body text-sm font-bold uppercase tracking-widest text-black transition-all duration-300 hover:bg-black hover:text-white"
+            >
+              Request a Quote
+            </Link>
+            <p className="text-xs text-warm-gray">Let&apos;s start planning your perfect bar.</p>
+          </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-black py-20 px-6 text-center">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
-            Let&apos;s Plan Your Bar Experience
-          </h2>
-          <p className="text-white/70 mb-8">
-            Tell us about your event and your cocktail preferences — we&apos;ll build a custom quote tailored to you.
-          </p>
-          <Link
-            href="/book"
-            className="inline-flex items-center justify-center rounded-pill bg-gold px-8 py-4 font-body text-base font-bold uppercase tracking-widest text-black transition-all duration-300 hover:bg-gold-light hover:shadow-btn-hover hover:-translate-y-0.5"
-          >
-            Get a Quote
-          </Link>
-          <p className="text-white/40 text-xs mt-3">No credit card required</p>
-        </div>
-      </section>
     </main>
   );
 }

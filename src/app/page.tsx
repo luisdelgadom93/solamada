@@ -101,27 +101,9 @@ export default function Home() {
             Solamada is a professional mobile bar and bartending service serving Houston, TX and surrounding areas.
             We arrive with a beautiful bar setup, fresh juices, house-made syrups, and every garnish needed
             to craft the cocktails you&apos;ve chosen — all served by a TABC-certified bartender.
-            You select the spirits; we handle everything else at the bar.
+            You bring the spirits; we handle everything else at the bar.
           </p>
 
-          {/* Stats row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { value: "3hr+", label: "Minimum service" },
-              { value: "40", label: "Guests per event" },
-              { value: "2+", label: "Cocktails per package" },
-              { value: "100%", label: "TABC certified" },
-            ].map((stat) => (
-              <div key={stat.label} className="flex flex-col items-center gap-1">
-                <span className="font-mono text-3xl md:text-4xl font-medium text-red">
-                  {stat.value}
-                </span>
-                <span className="text-xs text-warm-gray uppercase tracking-wider">
-                  {stat.label}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

@@ -42,16 +42,13 @@ export default function AboutPage() {
               The name <em>Solamada</em> carries a story that starts thousands of miles away — in Maracaibo, Venezuela.
             </p>
             <p>
-              Maracaibo is known as <em>&ldquo;La tierra del Sol amada&rdquo;</em> — the land of the beloved sun. It&apos;s a city of warmth, color, and a deep culture of gathering around good food, music, and drinks. <em>Sol Amada</em>: the beloved sun. That&apos;s where our name comes from, and it&apos;s the spirit we carry into every event we serve.
+              Maracaibo is known as <em>&ldquo;La tierra del Sol amada&rdquo;</em> — the beloved land of the sun. It&apos;s a city of warmth, color, and a deep culture of gathering around good food, music, and drinks. <em>Sol Amada</em>: the beloved sun. That&apos;s where our name comes from, and it&apos;s the spirit we carry into every event we serve.
             </p>
             <p>
-              We brought that Venezuelan warmth to Houston, TX — and turned it into a mobile bar experience. Solamada is a professional mobile bartending service for private and corporate events, built on the belief that the bar shouldn&apos;t just be functional. It should be a centerpiece. An experience. Something guests talk about.
+              We brought that Venezuelan warmth to Houston, TX — and turned it into a mobile bar experience. Solamada is a professional mobile bartending service for private and corporate events, built on the belief that the bar shouldn&apos;t just be functional — it should be an experience. If there&apos;s a reason to celebrate, we want to be a part of it.
             </p>
             <p>
-              We work with you ahead of your event to define the cocktail menu — choosing from our curated selection of classics, spritz cocktails, and sangrias. On the day of the event, we arrive with everything needed to serve with craft and care: fresh juices, house-made syrups, garnishes, ice, and a TABC-certified bartender ready to bring it all to life. You take care of the spirits; we take care of everything else at the bar.
-            </p>
-            <p>
-              Whether it&apos;s a backyard birthday, a wedding reception, a corporate gathering, or anything in between — if there&apos;s a reason to celebrate, we want to be part of it.
+              We work with you ahead of your event to define the cocktail menu — choosing from our curated selection of classics, spritz cocktails, and sangrias. On the day of the event, we arrive with everything needed to serve with craft and care: fresh juices, house-made syrups, garnishes, ice, and a TABC-certified bartender ready to bring it all to life. You bring the spirits; we take care of everything else at the bar.
             </p>
           </div>
         </div>

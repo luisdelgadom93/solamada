@@ -21,13 +21,13 @@ export default function MenuPage() {
           Our Cocktail Menu
         </h1>
         <p className="text-white/70 text-lg max-w-xl mx-auto leading-relaxed mb-2">
-          Choose up to{" "}
-          <span className="text-gold font-semibold">4 signature cocktails</span>{" "}
-          for your event. We handle all the mixers, garnishes, and fresh juices
-          — you provide the spirits.
+          Your package includes{" "}
+          <span className="text-gold font-semibold">2 signature cocktails</span>{" "}
+          of your choice. We handle all the mixers, garnishes, and fresh juices
+          — you bring the spirits.
         </p>
         <p className="text-white/40 text-sm">
-          Need more than 4? Additional cocktails available at custom pricing — ask during your consultation.
+          Want more variety? Add up to 2 additional cocktails via add-ons — mention it in your quote request.
         </p>
       </section>
 
