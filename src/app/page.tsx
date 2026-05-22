@@ -124,17 +124,17 @@ export default function Home() {
               {
                 step: "01",
                 title: "Request a Quote",
-                desc: "Tell us about your event — date, guest count, and which cocktails caught your eye. We&apos;ll get back to you with a custom proposal.",
+                desc: "Tell us about your event — date, guest count, and which cocktails caught your eye. We'll get back to you with a custom proposal.",
               },
               {
                 step: "02",
                 title: "Finalize the Menu",
-                desc: "Choose your cocktails from our curated menu. We&apos;ll guide your selection and provide a detailed alcohol shopping list.",
+                desc: "Choose your cocktails from our curated menu. We'll guide your selection and provide a detailed alcohol shopping list.",
               },
               {
                 step: "03",
                 title: "Confirm & Deposit",
-                desc: "Review your proposal, sign, and secure your date with a 50% deposit. The remaining balance is due 2 days before the event.",
+                desc: "Review your proposal, sign, and secure your date with a deposit. We'll confirm the details and save your date.",
               },
               {
                 step: "04",
@@ -152,6 +152,16 @@ export default function Home() {
                 <p className="text-warm-gray text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
+          </div>
+
+          {/* Learn more link */}
+          <div className="text-center mt-12">
+            <Link
+              href="/services"
+              className="inline-flex items-center gap-2 font-body text-sm font-bold uppercase tracking-widest text-black border-b-2 border-gold pb-0.5 hover:text-gold transition-colors duration-200"
+            >
+              See full service details & add-ons <span>→</span>
+            </Link>
           </div>
         </div>
       </section>
