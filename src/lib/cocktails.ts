@@ -79,6 +79,16 @@ export const cocktails: Cocktail[] = [
     emoji: "☕",
   },
   {
+    name: "Espresso Martini",
+    slug: "espresso-martini",
+    category: "classic",
+    baseSpirit: "Vodka",
+    ingredients: ["Vodka", "Cold brew espresso", "Coffee liqueur", "Simple syrup"],
+    image: "/images/cocktails/espresso-martini.png",
+    placeholderGradient: ["#0D0600", "#2E1A0E"],
+    emoji: "🍸",
+  },
+  {
     name: "Mojito",
     slug: "mojito",
     category: "classic",

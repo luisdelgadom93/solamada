@@ -1,32 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { cocktails } from "@/lib/cocktails";
 
-const featuredDrinks = [
-  {
-    name: "Paloma",
-    tag: "Tequila",
-    gradient: ["#FF6B6B", "#FFB347"] as [string, string],
-    emoji: "🍊",
-  },
-  {
-    name: "Mojito",
-    tag: "White Rum",
-    gradient: ["#1A7A4A", "#56CCB2"] as [string, string],
-    emoji: "🌿",
-  },
-  {
-    name: "Aperol Spritz",
-    tag: "Prosecco",
-    gradient: ["#E05A10", "#FFB347"] as [string, string],
-    emoji: "🍊",
-  },
-  {
-    name: "Sangria Roja",
-    tag: "Red Wine",
-    gradient: ["#6A1010", "#B52A2D"] as [string, string],
-    emoji: "🍷",
-  },
-];
+// Pick 4 showcase cocktails for the homepage preview
+const FEATURED_SLUGS = ["paloma", "mojito", "aperol-spritz", "sangria-roja"];
+const featuredDrinks = FEATURED_SLUGS.map((slug) => cocktails.find((c) => c.slug === slug)!).filter(Boolean);
 
 export default function Home() {
   return (
@@ -237,21 +215,30 @@ export default function Home() {
                 key={drink.name}
                 className="rounded-card overflow-hidden shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 group"
               >
-                {/* Gradient image placeholder */}
-                <div
-                  className="w-full aspect-square flex items-center justify-center text-5xl"
-                  style={{
-                    background: `linear-gradient(135deg, ${drink.gradient[0]}, ${drink.gradient[1]})`,
-                  }}
-                  aria-hidden="true"
-                >
-                  {drink.emoji}
-                </div>
+                {drink.image ? (
+                  <div className="relative w-full aspect-square">
+                    <Image
+                      src={drink.image}
+                      alt={drink.name}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                      className="object-cover object-center"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className="w-full aspect-square flex items-center justify-center text-5xl"
+                    style={{ background: `linear-gradient(135deg, ${drink.placeholderGradient[0]}, ${drink.placeholderGradient[1]})` }}
+                    aria-hidden="true"
+                  >
+                    {drink.emoji}
+                  </div>
+                )}
                 <div className="bg-white p-4 text-left">
                   <p className="font-display text-base font-bold text-black">
                     {drink.name}
                   </p>
-                  <p className="text-xs text-warm-gray mt-0.5">{drink.tag}</p>
+                  <p className="text-xs text-warm-gray mt-0.5">{drink.baseSpirit}</p>
                 </div>
               </div>
             ))}
