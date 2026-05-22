@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { Cocktail, CocktailCategory } from "@/lib/cocktails";
 
@@ -12,7 +13,30 @@ const categoryLabels: Record<CocktailCategory, { title: string; desc: string }> 
   sangria: { title: "Sangrias", desc: "Crowd-pleasing pitchers crafted with fresh fruits." },
 };
 
-function CocktailPlaceholder({ gradient, emoji }: { gradient: [string, string]; emoji: string }) {
+function CocktailPhoto({
+  image,
+  gradient,
+  emoji,
+  name,
+}: {
+  image?: string;
+  gradient: [string, string];
+  emoji: string;
+  name: string;
+}) {
+  if (image) {
+    return (
+      <div className="relative w-full aspect-square overflow-hidden">
+        <Image
+          src={image}
+          alt={name}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover object-center"
+        />
+      </div>
+    );
+  }
   return (
     <div
       className="w-full aspect-square flex items-center justify-center text-4xl select-none"
@@ -57,9 +81,14 @@ function CocktailCard({
         ${selectionMode && !selected ? "hover:border-gold/50" : ""}
       `}
     >
-      {/* Gradient image placeholder */}
+      {/* Photo or gradient placeholder */}
       <div className="relative">
-        <CocktailPlaceholder gradient={cocktail.placeholderGradient} emoji={cocktail.emoji} />
+        <CocktailPhoto
+          image={cocktail.image}
+          gradient={cocktail.placeholderGradient}
+          emoji={cocktail.emoji}
+          name={cocktail.name}
+        />
 
         {/* Selection overlay */}
         {selectionMode && (

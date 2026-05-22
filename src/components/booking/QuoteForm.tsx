@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Image from "next/image";
 import type { Cocktail } from "@/lib/cocktails";
 
 const INCLUDED_MAX = 2;
@@ -37,15 +38,27 @@ function CocktailCard({
       `}
       onClick={() => onToggle(cocktail.slug)}
     >
-      {/* Gradient placeholder */}
+      {/* Photo or gradient placeholder */}
       <div className="relative">
-        <div
-          className="w-full aspect-square flex items-center justify-center text-4xl select-none"
-          style={{ background: `linear-gradient(135deg, ${cocktail.placeholderGradient[0]}, ${cocktail.placeholderGradient[1]})` }}
-          aria-hidden="true"
-        >
-          {cocktail.emoji}
-        </div>
+        {cocktail.image ? (
+          <div className="relative w-full aspect-square overflow-hidden">
+            <Image
+              src={cocktail.image}
+              alt={cocktail.name}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover object-center"
+            />
+          </div>
+        ) : (
+          <div
+            className="w-full aspect-square flex items-center justify-center text-4xl select-none"
+            style={{ background: `linear-gradient(135deg, ${cocktail.placeholderGradient[0]}, ${cocktail.placeholderGradient[1]})` }}
+            aria-hidden="true"
+          >
+            {cocktail.emoji}
+          </div>
+        )}
 
         {/* Selection overlay */}
         <div className={`absolute inset-0 flex items-end justify-end p-2 transition-all duration-200 ${selected ? "bg-gold/20" : "bg-black/10"}`}>
