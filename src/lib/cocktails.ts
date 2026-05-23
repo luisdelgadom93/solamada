@@ -48,17 +48,6 @@ export const cocktails: Cocktail[] = [
     emoji: "🍹",
   },
   {
-    name: "Spicy Passion",
-    slug: "spicy-passion",
-    category: "classic",
-    baseSpirit: "Varies",
-    ingredients: ["Fresh fruit purée", "Lime juice", "Tajin rim"],
-    variants: ["Mango", "Guava"],
-    image: "/images/cocktails/spicy-passion.png",
-    placeholderGradient: ["#FF6B35", "#FFB347"],
-    emoji: "🥭",
-  },
-  {
     name: "Old Fashioned",
     slug: "old-fashioned",
     category: "classic",
