@@ -157,7 +157,7 @@ export async function POST(request: Request) {
 
     const { error } = await resend.emails.send({
       from: "Solamada Quotes <quotes@solamada.com>",
-      to: ["hello@solamada.com"],
+      to: ["hello@solamada.com", "luisdelgadom93@gmail.com"],
       replyTo: email,
       subject: `Quote Request — ${eventType || "Event"} · ${name}${eventDate ? ` · ${eventDate}` : ""}`,
       html,
