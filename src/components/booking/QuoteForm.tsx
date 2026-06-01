@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import Image from "next/image";
 import type { Cocktail } from "@/lib/cocktails";
+import type { QuotePayload } from "@/app/api/quote/route";
 
 const INCLUDED_MAX = 2;
 const INCLUDED_WITH_VARIANT = "Each included cocktail comes with one flavor variation (if available).";
@@ -133,6 +134,9 @@ export default function QuoteForm({
 }) {
   // ── Step state ──
   const [step, setStep] = useState<1 | 2>(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // ── Step 1: Cocktail selection ──
   const [selected, setSelected] = useState<string[]>(() =>
@@ -175,54 +179,48 @@ export default function QuoteForm({
   const extraCount = Math.max(0, selected.length - INCLUDED_MAX);
   const remaining = Math.max(0, INCLUDED_MAX - selected.length);
 
-  // Build a human-readable cocktail summary for the email
-  const buildCocktailSummary = () => {
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setSubmitError(null);
+
     const cocktailMap = new Map(cocktails.map((c) => [c.slug, c]));
-    return selected.map((slug, i) => {
-      const c = cocktailMap.get(slug);
-      if (!c) return slug;
-      const variant = selectedVariants[slug];
-      const label = variant ? `${c.name} (${variant})` : c.name;
-      const tag = i < INCLUDED_MAX ? "Included" : "Extra";
-      return `${label} — ${tag}`;
-    });
-  };
+    const payload: QuotePayload = {
+      name: form.name,
+      email: form.email,
+      phone: form.phone || undefined,
+      eventDate: form.eventDate || undefined,
+      eventType: form.eventType || undefined,
+      guestCount: form.guestCount || undefined,
+      location: form.location || undefined,
+      notes: form.notes || undefined,
+      cocktails: selected.map((slug, i) => {
+        const c = cocktailMap.get(slug);
+        return {
+          name: c?.name ?? slug,
+          variant: selectedVariants[slug],
+          tag: i < INCLUDED_MAX ? "Included" : "Extra",
+        };
+      }),
+    };
 
-  const handleSubmit = () => {
-    const cocktailLines = buildCocktailSummary();
+    try {
+      const res = await fetch("/api/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    const subject = encodeURIComponent(
-      `Quote Request — ${form.eventType || "Event"} on ${form.eventDate || "TBD"}`
-    );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Something went wrong. Please try again.");
+      }
 
-    const body = encodeURIComponent(
-      [
-        `Hi Solamada team,`,
-        ``,
-        `I'd like to request a quote for my upcoming event. Here are the details:`,
-        ``,
-        `── Event Details ──`,
-        `Name: ${form.name}`,
-        `Email: ${form.email}`,
-        `Phone: ${form.phone || "—"}`,
-        `Event Date: ${form.eventDate || "TBD"}`,
-        `Event Type: ${form.eventType || "—"}`,
-        `Guest Count: ${form.guestCount || "—"}`,
-        `Location / City: ${form.location || "—"}`,
-        ``,
-        `── Cocktail Selection ──`,
-        ...cocktailLines.map((line) => `• ${line}`),
-        selected.length === 0 ? "• No cocktails selected yet — open to suggestions" : "",
-        ``,
-        ...(form.notes ? [`── Additional Notes ──`, form.notes, ``] : []),
-        `Thanks!`,
-        form.name,
-      ]
-        .join("\n")
-        .trim()
-    );
-
-    window.open(`mailto:hello@solamada.com?subject=${subject}&body=${body}`, "_blank");
+      setSubmitted(true);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const categories = ["classic", "spritz", "sangria"] as const;
@@ -260,6 +258,37 @@ export default function QuoteForm({
       ))}
     </div>
   );
+
+  // ── Success screen ─────────────────────────────────────────────────────
+
+  if (submitted) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center px-6 py-20">
+        <div className="max-w-md w-full text-center">
+          <div className="w-16 h-16 rounded-full bg-gold/15 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="font-display text-3xl font-bold text-black mb-3">
+            Request received!
+          </h2>
+          <p className="text-warm-gray text-base leading-relaxed mb-2">
+            Thanks, <strong>{form.name}</strong>. We&apos;ll review your event details and get back to you within 24 hours with a custom quote.
+          </p>
+          <p className="text-warm-gray/70 text-sm mb-8">
+            A confirmation has been sent to <span className="font-medium text-black">{form.email}</span>.
+          </p>
+          <a
+            href="/"
+            className="inline-flex items-center justify-center rounded-pill border-2 border-black px-8 py-3 font-body text-sm font-bold uppercase tracking-widest text-black transition-all duration-300 hover:bg-black hover:text-white"
+          >
+            Back to Home
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   // ── Step 1 ─────────────────────────────────────────────────────────────
 
@@ -572,18 +601,31 @@ export default function QuoteForm({
         <div className="pt-2">
           <button
             type="button"
-            disabled={!form.name || !form.email}
+            disabled={!form.name || !form.email || submitting}
             onClick={handleSubmit}
             className={`w-full inline-flex items-center justify-center gap-2 rounded-pill py-4 font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 ${
-              form.name && form.email
+              form.name && form.email && !submitting
                 ? "bg-red text-white shadow-btn hover:bg-gold hover:shadow-btn-hover hover:-translate-y-0.5"
                 : "bg-light-gray text-warm-gray cursor-not-allowed"
             }`}
           >
-            Send Quote Request ✦
+            {submitting ? (
+              <>
+                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+                Sending…
+              </>
+            ) : (
+              <>Send Quote Request ✦</>
+            )}
           </button>
+          {submitError && (
+            <p className="text-center text-sm text-red mt-3 font-medium">{submitError}</p>
+          )}
           <p className="text-center text-xs text-warm-gray mt-3">
-            This will open your email app with everything pre-filled. We&apos;ll respond within 24 hours.
+            No credit card required &middot; We&apos;ll respond within 24 hours
           </p>
         </div>
       </div>
