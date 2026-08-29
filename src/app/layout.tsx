@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     "mobile bar",
     "party bartender",
     "cocktail catering",
-    "Miami bartending service",
+    "Houston bartending service",
   ],
   openGraph: {
     title: "Solamada | Mobile Cocktail Cart & Bartending for Events",
