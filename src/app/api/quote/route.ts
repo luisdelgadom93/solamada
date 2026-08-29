@@ -14,7 +14,14 @@ export interface QuotePayload {
 }
 
 export async function POST(request: Request) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const apiKey = process.env.RESEND_API_KEY;
+
+  if (!apiKey) {
+    console.error("RESEND_API_KEY is not set — quote emails cannot be sent.");
+    return NextResponse.json({ error: "Email service is not configured." }, { status: 500 });
+  }
+
+  const resend = new Resend(apiKey);
 
   try {
     const payload: QuotePayload = await request.json();
