@@ -6,6 +6,7 @@ import type { Cocktail } from "@/lib/cocktails";
 import type { QuotePayload } from "@/app/api/quote/route";
 
 const INCLUDED_MAX = 2;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INCLUDED_WITH_VARIANT = "Each included cocktail comes with one flavor variation (if available).";
 
 // ── Step 1: Cocktail card ──────────────────────────────────────────────────
@@ -180,19 +181,27 @@ export default function QuoteForm({
   const remaining = Math.max(0, INCLUDED_MAX - selected.length);
 
   const handleSubmit = async () => {
+    const name = form.name.trim();
+    const email = form.email.trim();
+
+    if (!EMAIL_PATTERN.test(email)) {
+      setSubmitError("Please enter a valid email address.");
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
 
     const cocktailMap = new Map(cocktails.map((c) => [c.slug, c]));
     const payload: QuotePayload = {
-      name: form.name,
-      email: form.email,
-      phone: form.phone || undefined,
+      name,
+      email,
+      phone: form.phone.trim() || undefined,
       eventDate: form.eventDate || undefined,
       eventType: form.eventType || undefined,
       guestCount: form.guestCount || undefined,
-      location: form.location || undefined,
-      notes: form.notes || undefined,
+      location: form.location.trim() || undefined,
+      notes: form.notes.trim() || undefined,
       cocktails: selected.map((slug, i) => {
         const c = cocktailMap.get(slug);
         return {
@@ -601,7 +610,7 @@ export default function QuoteForm({
         <div className="pt-2">
           <button
             type="button"
-            disabled={!form.name || !form.email || submitting}
+            disabled={!form.name.trim() || !form.email.trim() || submitting}
             onClick={handleSubmit}
             className={`w-full inline-flex items-center justify-center gap-2 rounded-pill py-4 font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 ${
               form.name && form.email && !submitting

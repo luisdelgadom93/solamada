@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export interface QuotePayload {
   name: string;
   email: string;
@@ -26,10 +28,18 @@ export async function POST(request: Request) {
   try {
     const payload: QuotePayload = await request.json();
 
-    const { name, email, phone, eventDate, eventType, guestCount, location, notes, cocktails } = payload;
+    const { phone, eventDate, eventType, guestCount, location, notes, cocktails } = payload;
+    const name = payload.name?.trim();
+    const email = payload.email?.trim();
 
     if (!name || !email) {
       return NextResponse.json({ error: "Name and email are required." }, { status: 400 });
+    }
+
+    // Resend rejects the whole message with a 422 if replyTo is malformed,
+    // which would lose the request entirely. Catch it here instead.
+    if (!EMAIL_PATTERN.test(email)) {
+      return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
     }
 
     // ── Build HTML email ────────────────────────────────────────────────────
@@ -172,7 +182,7 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      console.error("Resend error:", error);
+      console.error("Resend error:", JSON.stringify(error));
       return NextResponse.json({ error: "Failed to send email." }, { status: 500 });
     }
 
