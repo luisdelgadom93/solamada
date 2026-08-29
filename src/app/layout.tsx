@@ -26,6 +26,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://solamada.com"),
   title: {
     default: "Solamada | Mobile Cocktail Cart & Bartending for Events",
     template: "%s | Solamada",
