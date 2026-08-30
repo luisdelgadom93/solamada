@@ -20,7 +20,7 @@ export default function AboutPage() {
           About Solamada
         </h1>
         <p className="text-white/70 text-lg max-w-xl mx-auto leading-relaxed">
-          Born from Venezuelan roots. Built for Houston celebrations.
+          Born from Venezuelan roots. Made for moments that bring people together.
         </p>
       </section>
 
