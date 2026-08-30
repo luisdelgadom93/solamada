@@ -177,6 +177,15 @@ export default function QuoteForm({
     setSelectedVariants((prev) => ({ ...prev, [slug]: variant }));
   }, []);
 
+  const adjustGuestCount = useCallback((amount: number) => {
+    setForm((current) => {
+      const guestCount = Number.parseInt(current.guestCount, 10) || 0;
+      const nextGuestCount = Math.min(999, Math.max(1, guestCount + amount));
+
+      return { ...current, guestCount: String(nextGuestCount) };
+    });
+  }, []);
+
   const includedCount = Math.min(selected.length, INCLUDED_MAX);
   const extraCount = Math.max(0, selected.length - INCLUDED_MAX);
   const remaining = Math.max(0, INCLUDED_MAX - selected.length);
@@ -573,18 +582,38 @@ export default function QuoteForm({
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
               Approximate Guest Count
             </label>
-            <select
-              value={form.guestCount}
-              onChange={(e) => setForm({ ...form, guestCount: e.target.value })}
-              className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black transition-colors focus:border-gold focus:outline-none bg-white"
-            >
-              <option value="">Select range…</option>
-              <option>Under 20</option>
-              <option>20 – 40</option>
-              <option>41 – 75</option>
-              <option>76 – 100</option>
-              <option>100+</option>
-            </select>
+            <div className="flex w-full overflow-hidden rounded-input border-2 border-light-gray bg-white transition-colors focus-within:border-gold focus-within:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]">
+              <button
+                type="button"
+                onClick={() => adjustGuestCount(-1)}
+                disabled={!form.guestCount || Number(form.guestCount) <= 1}
+                aria-label="Remove one guest"
+                className="flex min-h-12 w-14 shrink-0 items-center justify-center border-r-2 border-light-gray text-2xl font-medium text-red transition-colors hover:bg-cream disabled:cursor-not-allowed disabled:text-medium-gray"
+              >
+                <span aria-hidden="true">−</span>
+              </button>
+              <input
+                type="number"
+                min="1"
+                max="999"
+                step="1"
+                inputMode="numeric"
+                value={form.guestCount}
+                onChange={(e) => setForm({ ...form, guestCount: e.target.value })}
+                placeholder="0"
+                aria-label="Approximate guest count"
+                className="min-w-0 flex-1 px-3 py-3 text-center text-base font-bold text-black outline-none placeholder:text-medium-gray"
+              />
+              <button
+                type="button"
+                onClick={() => adjustGuestCount(1)}
+                disabled={Number(form.guestCount) >= 999}
+                aria-label="Add one guest"
+                className="flex min-h-12 w-14 shrink-0 items-center justify-center border-l-2 border-light-gray text-2xl font-medium text-red transition-colors hover:bg-cream disabled:cursor-not-allowed disabled:text-medium-gray"
+              >
+                <span aria-hidden="true">+</span>
+              </button>
+            </div>
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
