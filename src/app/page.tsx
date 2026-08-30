@@ -144,59 +144,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Services Preview ── */}
-      <section className="bg-warm-white py-20 md:py-28 px-6">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center mb-12">
-            <p className="font-mono text-xs text-gold tracking-widest uppercase mb-3">
-              The Solamada Experience
-            </p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold text-black mb-4">
-              Everything at the Bar, Handled
-            </h2>
-            <p className="text-warm-gray text-lg max-w-xl mx-auto">
-              We bring the setup, the craft, and the service. You bring the spirits and the celebration.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-card p-8 md:p-12 shadow-card border-2 border-gold">
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-              {[
-                "1 professional TABC-certified bartender",
-                "2 cocktails of your choice from our menu",
-                "General bartending for your provided beer, wine & soft drinks",
-                "All non-alcoholic mixers, syrups, fresh juices & garnishes",
-                "Coolers stocked with ice, still & sparkling water",
-                "Water dispenser included",
-                "Plastic drinkware included",
-                "Delivery, full setup & breakdown",
-                "3-hour minimum service window",
-              ].map((feature) => (
-                <li key={feature} className="flex items-start gap-3">
-                  <span className="text-gold font-bold mt-0.5 shrink-0">✓</span>
-                  <span className="text-black text-sm">{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/book"
-                className="inline-flex items-center justify-center rounded-pill bg-red px-8 py-4 font-body text-sm font-bold uppercase tracking-widest text-white shadow-btn transition-all duration-300 hover:bg-gold hover:shadow-btn-hover hover:-translate-y-0.5"
-              >
-                Get a Quote
-              </Link>
-              <Link
-                href="/services"
-                className="inline-flex items-center justify-center rounded-pill border-2 border-black px-8 py-4 font-body text-sm font-bold uppercase tracking-widest text-black transition-all duration-300 hover:bg-black hover:text-white"
-              >
-                Full Service Details
-              </Link>
-            </div>
-            <p className="text-center text-xs text-warm-gray mt-4">No credit card required</p>
-          </div>
-        </div>
-      </section>
-
       {/* ── Signature Drinks Preview ── */}
       <section className="bg-black py-20 md:py-28 px-6">
         <div className="mx-auto max-w-5xl text-center">
