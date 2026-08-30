@@ -85,6 +85,25 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Dry Hire ── */}
+      <section className="bg-black px-6 py-16 md:py-20">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="font-mono text-xs uppercase tracking-widest text-gold mb-4">
+            Clear, Simple &amp; Fully Supported
+          </p>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-6">
+            We Are Dry Hire
+          </h2>
+          <p className="text-base md:text-lg leading-relaxed text-white/75">
+            Solamada provides the full bartending experience, but{" "}
+            <strong className="font-bold text-white">we do not provide or sell alcohol</strong>.
+            You provide the spirits, and we take care of the rest. Don&apos;t worry about figuring out what to buy,{" "}
+            <strong className="font-bold text-white">we&apos;ll create a customized liquor shopping list</strong>{" "}
+            based on the cocktails you select and your event details.
+          </p>
+        </div>
+      </section>
+
       {/* ── How It Works ── */}
       <section className="bg-white py-20 md:py-28 px-6">
         <div className="mx-auto max-w-5xl">
