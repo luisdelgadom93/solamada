@@ -30,17 +30,6 @@ function IconClock() {
   );
 }
 
-function IconWater() {
-  return (
-    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-gold mx-auto">
-      <rect x="14" y="10" width="20" height="30" rx="4" />
-      <path d="M19 10V7M29 10V7" />
-      <path d="M14 20h20" />
-      <path d="M21 28h6M24 25v6" />
-    </svg>
-  );
-}
-
 function IconGlass() {
   return (
     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12 text-gold mx-auto">
@@ -108,7 +97,8 @@ const packageFeatures = [
   "2 cocktails of your choice from our menu",
   "General bartending for your provided beer, wine & soft drinks",
   "All non-alcoholic mixers, syrups, fresh juices & garnishes",
-  "Coolers stocked with ice and water",
+  "Coolers stocked with ice, still & sparkling water",
+  "Water dispenser included",
   "Plastic drinkware included",
   "Delivery, full setup & breakdown",
   "3-hour minimum service window",
@@ -124,11 +114,6 @@ const addOns = [
     icon: <IconClock />,
     name: "Additional Service Hours",
     desc: "Extend the fun with extra service time.",
-  },
-  {
-    icon: <IconWater />,
-    name: "Water Dispenser",
-    desc: "Keeps your guests hydrated throughout the event.",
   },
   {
     icon: <IconGlass />,

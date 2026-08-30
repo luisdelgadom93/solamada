@@ -26,7 +26,8 @@ export const packages: ServicePackage[] = [
       "General bartending service for client-provided beverages (beer, wine, soft drinks, etc.)",
       "All non-alcoholic mixers, syrups, fresh juices & purees, and garnishes",
       "Plastic drinkware",
-      "Coolers stocked with ice and water for service",
+      "Coolers stocked with ice, still & sparkling water",
+      "Water dispenser included",
       "Delivery, setup, and breakdown of all Solamada equipment and ingredients",
     ],
   },
@@ -40,10 +41,6 @@ export const addOns: AddOn[] = [
   {
     name: "Premium drinkware",
     description: "Upgrade to glassware as featured in our cocktail menu photos.",
-  },
-  {
-    name: "Water dispenser rental",
-    description: "Keep guests refreshed with still or sparkling water throughout the event.",
   },
   {
     name: "Soft drinks",
