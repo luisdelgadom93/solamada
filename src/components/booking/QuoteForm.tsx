@@ -543,19 +543,13 @@ export default function QuoteForm({
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
               Event Type
             </label>
-            <select
+            <input
+              type="text"
               value={form.eventType}
               onChange={(e) => setForm({ ...form, eventType: e.target.value })}
-              className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black transition-colors focus:border-gold focus:outline-none bg-white"
-            >
-              <option value="">Select type…</option>
-              <option>Birthday Party</option>
-              <option>Wedding / Reception</option>
-              <option>Corporate Event</option>
-              <option>Bachelorette / Bachelor Party</option>
-              <option>Holiday Party</option>
-              <option>Other</option>
-            </select>
+              placeholder="Birthday, wedding, corporate event, bridal shower, holiday party? Tell us what you’re celebrating."
+              className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray transition-colors focus:border-gold focus:outline-none focus:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]"
+            />
           </div>
         </div>
 
