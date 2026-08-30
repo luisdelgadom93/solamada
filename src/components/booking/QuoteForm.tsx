@@ -151,6 +151,7 @@ export default function QuoteForm({
     email: "",
     phone: "",
     eventDate: "",
+    eventTime: "",
     eventType: "",
     guestCount: "",
     location: "",
@@ -198,6 +199,7 @@ export default function QuoteForm({
       email,
       phone: form.phone.trim() || undefined,
       eventDate: form.eventDate || undefined,
+      eventTime: form.eventTime || undefined,
       eventType: form.eventType || undefined,
       guestCount: form.guestCount || undefined,
       location: form.location.trim() || undefined,
@@ -526,8 +528,8 @@ export default function QuoteForm({
           />
         </div>
 
-        {/* Date + Event type */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Date + Start time + Event type */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
               Event Date
@@ -536,6 +538,18 @@ export default function QuoteForm({
               type="date"
               value={form.eventDate}
               onChange={(e) => setForm({ ...form, eventDate: e.target.value })}
+              className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black transition-colors focus:border-gold focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
+              Event Time
+            </label>
+            <input
+              type="time"
+              value={form.eventTime}
+              onChange={(e) => setForm({ ...form, eventTime: e.target.value })}
+              aria-label="Event start time"
               className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black transition-colors focus:border-gold focus:outline-none"
             />
           </div>

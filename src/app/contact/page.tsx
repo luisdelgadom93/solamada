@@ -179,6 +179,22 @@ export default function ContactPage() {
 
               <div>
                 <label
+                  htmlFor="time"
+                  className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2"
+                >
+                  Event Time
+                </label>
+                <input
+                  id="time"
+                  name="time"
+                  type="time"
+                  aria-label="Event start time"
+                  className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black transition-colors focus:border-gold focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label
                   htmlFor="message"
                   className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2"
                 >

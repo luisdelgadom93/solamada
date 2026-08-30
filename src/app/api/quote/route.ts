@@ -8,6 +8,7 @@ export interface QuotePayload {
   email: string;
   phone?: string;
   eventDate?: string;
+  eventTime?: string;
   eventType?: string;
   guestCount?: string;
   location?: string;
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
   try {
     const payload: QuotePayload = await request.json();
 
-    const { phone, eventDate, eventType, guestCount, location, notes, cocktails } = payload;
+    const { phone, eventDate, eventTime, eventType, guestCount, location, notes, cocktails } = payload;
     const name = payload.name?.trim();
     const email = payload.email?.trim();
 
@@ -106,6 +107,7 @@ export async function POST(request: Request) {
               ${detailRow("Email", email)}
               ${detailRow("Phone", phone)}
               ${detailRow("Event Date", eventDate)}
+              ${detailRow("Event Start Time", eventTime)}
               ${detailRow("Event Type", eventType)}
               ${detailRow("Guest Count", guestCount)}
               ${detailRow("Location", location)}
@@ -159,6 +161,7 @@ export async function POST(request: Request) {
       `From: ${name} <${email}>`,
       phone ? `Phone: ${phone}` : null,
       eventDate ? `Event Date: ${eventDate}` : null,
+      eventTime ? `Event Start Time: ${eventTime}` : null,
       eventType ? `Event Type: ${eventType}` : null,
       guestCount ? `Guest Count: ${guestCount}` : null,
       location ? `Location: ${location}` : null,
