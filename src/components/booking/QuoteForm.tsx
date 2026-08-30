@@ -7,7 +7,6 @@ import type { QuotePayload } from "@/app/api/quote/route";
 
 const INCLUDED_MAX = 2;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const INCLUDED_WITH_VARIANT = "Each included cocktail comes with one flavor variation (if available).";
 
 // ── Step 1: Cocktail card ──────────────────────────────────────────────────
 
@@ -323,9 +322,8 @@ export default function QuoteForm({
             Choose your cocktails
           </h2>
           <p className="text-warm-gray text-sm">
-            Your package includes <span className="font-semibold text-black">{INCLUDED_MAX} cocktails</span> — each with one flavor variation if available. You can add more at custom pricing.
+            Your package includes <span className="font-semibold text-black">{INCLUDED_MAX} cocktails</span> — each with one flavor variation if available. Additional cocktails can be added as an upgrade to your package.
           </p>
-          <p className="text-warm-gray/70 text-xs mt-1">{INCLUDED_WITH_VARIANT}</p>
         </div>
 
         {/* Selection progress bar */}
