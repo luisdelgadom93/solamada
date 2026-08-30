@@ -14,12 +14,22 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="relative overflow-clip bg-black text-white">
         <Image
-          src="/images/about/lake-maracaibo-bridge-cinematic-v4.png"
+          src="/images/about/lake-maracaibo-bridge-v7-desktop-4k.png"
           alt="Lake Maracaibo and the General Rafael Urdaneta Bridge beneath a bright golden-hour sky"
           fill
           sizes="100vw"
-          className="object-cover object-center"
+          className="hidden object-cover object-center md:block"
           priority
+          unoptimized
+        />
+        <Image
+          src="/images/about/lake-maracaibo-bridge-v7-mobile-4k.png"
+          alt="Lake Maracaibo and the General Rafael Urdaneta Bridge beneath a bright golden-hour sky"
+          fill
+          sizes="100vw"
+          className="object-cover object-center md:hidden"
+          priority
+          unoptimized
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/10 to-black/25" aria-hidden="true" />
 
