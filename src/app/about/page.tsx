@@ -12,31 +12,53 @@ export default function AboutPage() {
   return (
     <main className="pt-28 pb-20">
       {/* Hero */}
-      <section className="bg-black text-white py-20 px-6 text-center">
-        <p className="font-mono text-sm text-gold tracking-widest uppercase mb-4">
-          Our Story
-        </p>
-        <h1 className="font-display text-5xl md:text-6xl font-bold mb-6">
-          About Solamada
-        </h1>
-        <p className="text-white/70 text-lg max-w-xl mx-auto leading-relaxed">
-          Born from Venezuelan roots. Made for moments that bring people together.
-        </p>
-      </section>
+      <section className="relative overflow-clip bg-black text-white">
+        <Image
+          src="/images/about/lake-maracaibo-bridge-cinematic-v4.png"
+          alt="Lake Maracaibo and the General Rafael Urdaneta Bridge beneath a bright golden-hour sky"
+          fill
+          sizes="100vw"
+          className="object-cover object-center"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/10 to-black/25" aria-hidden="true" />
 
-      {/* Story */}
-      <section className="py-20 px-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex justify-center mb-12">
+        <div className="relative z-10 py-20 px-6 text-center">
+          <p className="font-mono text-sm text-gold tracking-widest uppercase mb-4">
+            Our Story
+          </p>
+          <h1 className="font-display text-5xl md:text-6xl font-bold mb-6 drop-shadow-md">
+            About Solamada
+          </h1>
+          <p className="text-white/80 text-lg max-w-xl mx-auto leading-relaxed drop-shadow-md">
+            Born from Venezuelan roots. Made for moments that bring people together.
+          </p>
+        </div>
+
+      {/* Maracaibo story opener */}
+        <div className="sticky top-20 z-20 flex justify-center py-8 md:top-24 md:py-10">
+          <div className="px-6 py-4">
             <Image
-              src="/images/logos/solamada-logo-negro-sol.png"
+              src="/images/logos/solamada-logo-blanco-sol.png"
               alt="Solamada"
               width={180}
               height={180}
-              className="h-36 w-auto opacity-90"
+              className="h-36 w-auto"
+              priority
             />
           </div>
+        </div>
 
+        <div className="relative -mt-4 h-[92svh] min-h-[620px] overflow-hidden md:-mt-8 md:h-[110svh] md:min-h-[760px]">
+          <p className="absolute bottom-6 left-1/2 w-[calc(100%-3rem)] -translate-x-1/2 text-center font-mono text-[10px] uppercase tracking-[0.22em] text-white/80 drop-shadow-md md:bottom-8 md:text-xs">
+            Lake Maracaibo • Maracaibo, Zulia, Venezuela
+          </p>
+        </div>
+      </section>
+
+      {/* Story */}
+      <section className="bg-white py-20 px-6 md:py-28">
+        <div className="max-w-3xl mx-auto">
           <div className="prose prose-lg max-w-none space-y-6 text-warm-gray leading-relaxed">
             <p className="text-xl text-black font-medium leading-relaxed">
               The name <em>Solamada</em> carries a story that starts thousands of miles away — in Maracaibo, Venezuela.
