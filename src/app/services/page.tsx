@@ -225,7 +225,8 @@ export default function ServicesPage() {
                 Cocktail &amp; Mixology Experience
               </h2>
               <p className="mb-5 text-sm leading-relaxed text-white/65">
-                An interactive cocktail-making gathering combining mixology, drinks, and music.
+                Interactive cocktail lessons where you&apos;ll learn to make up to 3 classic
+                cocktails yourself, with music and time to sip and socialize between each one.
               </p>
               <span className="text-xs font-bold uppercase tracking-widest text-gold">
                 Explore the experience ↓
