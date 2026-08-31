@@ -3,10 +3,14 @@
 import { useState, useCallback } from "react";
 import Image from "next/image";
 import type { Cocktail } from "@/lib/cocktails";
+import { addOns as availableAddOns } from "@/lib/packages";
 import type { QuotePayload } from "@/app/api/quote/route";
 
 const INCLUDED_MAX = 2;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const getFlavorOptions = (cocktail: Cocktail) =>
+  cocktail.variants?.map((variant) => variant === "Original" ? "Classic" : variant) ?? [];
 
 // ── Step 1: Cocktail card ──────────────────────────────────────────────────
 
@@ -14,20 +18,21 @@ function CocktailCard({
   cocktail,
   selected,
   selectionIndex,
-  selectedVariant,
+  selectedVariants,
   onToggle,
   onVariantSelect,
 }: {
   cocktail: Cocktail;
   selected: boolean;
   selectionIndex: number;
-  selectedVariant?: string;
+  selectedVariants: string[];
   onToggle: (slug: string) => void;
   onVariantSelect: (slug: string, variant: string) => void;
 }) {
   const isExtra = selected && selectionIndex >= INCLUDED_MAX;
   const isIncluded = selected && selectionIndex < INCLUDED_MAX;
-  const hasVariants = cocktail.variants && cocktail.variants.length > 0;
+  const flavorOptions = getFlavorOptions(cocktail);
+  const hasVariants = flavorOptions.length > 0;
 
   return (
     <div
@@ -98,23 +103,36 @@ function CocktailCard({
             onClick={(e) => e.stopPropagation()} // don't deselect when clicking variants
           >
             <p className="text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
-              Pick a flavor:
+              {isExtra ? "Choose flavors · cocktail add-on:" : "Choose flavors · 2 included:"}
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {cocktail.variants!.map((variant) => (
+              {flavorOptions.map((variant) => {
+                const flavorIndex = selectedVariants.indexOf(variant);
+                const isSelected = flavorIndex !== -1;
+                const isFlavorExtra = isSelected && (isExtra || flavorIndex >= 2);
+                return (
                 <button
                   key={variant}
                   type="button"
                   onClick={() => onVariantSelect(cocktail.slug, variant)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-150 ${
-                    selectedVariant === variant
-                      ? "bg-gold text-white"
+                  aria-pressed={isSelected}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-150 ${
+                    isSelected
+                      ? isFlavorExtra
+                        ? "bg-black text-white"
+                        : "bg-gold text-white"
                       : "bg-warm-white border border-light-gray text-warm-gray hover:border-gold hover:text-gold"
                   }`}
                 >
                   {variant}
+                  {isSelected && (
+                    <span className={`font-normal ${isFlavorExtra ? "text-white/60" : "text-white/75"}`}>
+                      {isFlavorExtra ? "Add-on" : "Included"}
+                    </span>
+                  )}
                 </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -142,7 +160,15 @@ export default function QuoteForm({
   const [selected, setSelected] = useState<string[]>(() =>
     initialSlugs.filter((s) => cocktails.some((c) => c.slug === s))
   );
-  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, string[]>>(() =>
+    Object.fromEntries(
+      initialSlugs.flatMap((slug) => {
+        const cocktail = cocktails.find((item) => item.slug === slug);
+        return cocktail && getFlavorOptions(cocktail).length > 0 ? [[slug, ["Classic"]]] : [];
+      })
+    )
+  );
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
 
   // ── Step 2: Event details ──
   const [form, setForm] = useState({
@@ -168,12 +194,30 @@ export default function QuoteForm({
         });
         return prev.filter((s) => s !== slug);
       }
+      const cocktail = cocktails.find((item) => item.slug === slug);
+      if (cocktail && getFlavorOptions(cocktail).length > 0) {
+        setSelectedVariants((variants) => ({ ...variants, [slug]: ["Classic"] }));
+      }
       return [...prev, slug];
+    });
+  }, [cocktails]);
+
+  const setVariant = useCallback((slug: string, variant: string) => {
+    setSelectedVariants((prev) => {
+      const current = prev[slug] ?? [];
+      return {
+        ...prev,
+        [slug]: current.includes(variant)
+          ? current.filter((item) => item !== variant)
+          : [...current, variant],
+      };
     });
   }, []);
 
-  const setVariant = useCallback((slug: string, variant: string) => {
-    setSelectedVariants((prev) => ({ ...prev, [slug]: variant }));
+  const toggleAddOn = useCallback((name: string) => {
+    setSelectedAddOns((current) =>
+      current.includes(name) ? current.filter((item) => item !== name) : [...current, name]
+    );
   }, []);
 
   const adjustGuestCount = useCallback((amount: number) => {
@@ -202,6 +246,12 @@ export default function QuoteForm({
     setSubmitError(null);
 
     const cocktailMap = new Map(cocktails.map((c) => [c.slug, c]));
+    const automaticFlavorAddOns = selected.flatMap((slug) => {
+      const cocktail = cocktailMap.get(slug);
+      return (selectedVariants[slug] ?? []).slice(2).map((flavor) =>
+        `${cocktail?.name ?? slug} · ${flavor} flavor`
+      );
+    });
     const payload: QuotePayload = {
       name,
       email,
@@ -212,14 +262,20 @@ export default function QuoteForm({
       guestCount: form.guestCount || undefined,
       location: form.location.trim() || undefined,
       notes: form.notes.trim() || undefined,
-      cocktails: selected.map((slug, i) => {
+      cocktails: selected.flatMap((slug, cocktailIndex) => {
         const c = cocktailMap.get(slug);
-        return {
+        const flavors = selectedVariants[slug] ?? [];
+        if (flavors.length === 0) return [{
           name: c?.name ?? slug,
-          variant: selectedVariants[slug],
-          tag: i < INCLUDED_MAX ? "Included" : "Extra",
-        };
+          tag: cocktailIndex < INCLUDED_MAX ? "Included" as const : "Extra" as const,
+        }];
+        return flavors.map((flavor, flavorIndex) => ({
+          name: c?.name ?? slug,
+          variant: flavor,
+          tag: cocktailIndex < INCLUDED_MAX && flavorIndex < 2 ? "Included" as const : "Extra" as const,
+        }));
       }),
+      addOns: [...selectedAddOns, ...automaticFlavorAddOns],
     };
 
     try {
@@ -384,7 +440,7 @@ export default function QuoteForm({
                         cocktail={cocktail}
                         selected={selectionIndex !== -1}
                         selectionIndex={selectionIndex}
-                        selectedVariant={selectedVariants[cocktail.slug]}
+                        selectedVariants={selectedVariants[cocktail.slug] ?? []}
                         onToggle={toggleDrink}
                         onVariantSelect={setVariant}
                       />
@@ -441,6 +497,12 @@ export default function QuoteForm({
   const cocktailMap = new Map(cocktails.map((c) => [c.slug, c]));
   const includedDrinks = selected.slice(0, INCLUDED_MAX);
   const extraDrinks = selected.slice(INCLUDED_MAX);
+  const flavorAddOns = includedDrinks.flatMap((slug) => {
+    const cocktail = cocktailMap.get(slug);
+    return (selectedVariants[slug] ?? []).slice(2).map((flavor) =>
+      `${cocktail?.name ?? slug} · ${flavor} flavor`
+    );
+  });
 
   return (
     <div className="max-w-2xl mx-auto px-6 pb-20">
@@ -463,21 +525,26 @@ export default function QuoteForm({
           {includedDrinks.map((slug) => {
             const c = cocktailMap.get(slug);
             if (!c) return null;
-            const variant = selectedVariants[slug];
-            return (
+            const flavors = selectedVariants[slug] ?? [];
+            if (flavors.length === 0) return (
               <span key={slug} className="inline-flex items-center gap-1.5 bg-gold text-white text-xs font-bold px-3 py-1.5 rounded-full">
-                {c.emoji} {c.name}{variant ? ` · ${variant}` : ""}
-                <span className="text-white/70 font-normal">Included</span>
+                {c.emoji} {c.name} <span className="text-white/70 font-normal">Included</span>
               </span>
             );
+            return flavors.map((flavor, flavorIndex) => (
+              <span key={`${slug}-${flavor}`} className={`inline-flex items-center gap-1.5 text-white text-xs font-bold px-3 py-1.5 rounded-full ${flavorIndex < 2 ? "bg-gold" : "bg-black"}`}>
+                {c.emoji} {c.name} · {flavor}
+                <span className="text-white/70 font-normal">{flavorIndex < 2 ? "Included" : "Add-on"}</span>
+              </span>
+            ));
           })}
           {extraDrinks.map((slug) => {
             const c = cocktailMap.get(slug);
             if (!c) return null;
-            const variant = selectedVariants[slug];
+            const flavors = selectedVariants[slug] ?? [];
             return (
               <span key={slug} className="inline-flex items-center gap-1.5 bg-black text-white text-xs font-bold px-3 py-1.5 rounded-full">
-                {c.emoji} {c.name}{variant ? ` · ${variant}` : ""}
+                {c.emoji} {c.name}{flavors.length > 0 ? ` · ${flavors.join(" + ")}` : ""}
                 <span className="text-white/60 font-normal">Extra</span>
               </span>
             );
@@ -626,6 +693,68 @@ export default function QuoteForm({
             />
           </div>
         </div>
+
+        {/* Add-ons */}
+        <section className="pt-4" aria-labelledby="add-ons-heading">
+          <div className="mb-4">
+            <h2 id="add-ons-heading" className="font-display text-2xl font-bold text-black mb-1">
+              Add-ons
+            </h2>
+            <p className="text-sm text-warm-gray">
+              Select any extras you&apos;d like us to include in your custom quote.
+            </p>
+          </div>
+
+          {flavorAddOns.length > 0 && (
+            <div className="mb-4 rounded-card border border-gold/40 bg-gold/10 p-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-gold mb-2">
+                Flavor add-ons from your cocktails
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {flavorAddOns.map((addOn) => (
+                  <span key={addOn} className="rounded-full bg-black px-3 py-1.5 text-xs font-bold text-white">
+                    {addOn}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-warm-gray">
+                The first 2 flavors for each included cocktail are included. Additional flavors are added to your quote automatically.
+              </p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {availableAddOns.map((addOn) => {
+              const isSelected = selectedAddOns.includes(addOn.name);
+              return (
+                <button
+                  key={addOn.name}
+                  type="button"
+                  onClick={() => toggleAddOn(addOn.name)}
+                  aria-pressed={isSelected}
+                  className={`flex min-h-28 items-start gap-3 rounded-card border-2 p-4 text-left transition-all duration-200 ${
+                    isSelected
+                      ? "border-gold bg-gold/10 shadow-[0_0_0_1px_#D4A017]"
+                      : "border-light-gray bg-white hover:border-gold/60"
+                  }`}
+                >
+                  <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${
+                    isSelected ? "border-gold bg-gold text-white" : "border-medium-gray text-transparent"
+                  }`}>
+                    ✓
+                  </span>
+                  <span>
+                    <span className="block font-display text-base font-bold text-black">{addOn.name}</span>
+                    <span className="mt-1 block text-xs leading-relaxed text-warm-gray">{addOn.description}</span>
+                    <span className={`mt-2 block text-xs font-bold uppercase tracking-wider ${isSelected ? "text-gold" : "text-medium-gray"}`}>
+                      {isSelected ? "Selected" : "Optional"}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
         {/* Notes */}
         <div>

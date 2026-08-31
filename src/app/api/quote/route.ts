@@ -14,6 +14,7 @@ export interface QuotePayload {
   location?: string;
   notes?: string;
   cocktails: { name: string; variant?: string; tag: "Included" | "Extra" }[];
+  addOns?: string[];
 }
 
 export async function POST(request: Request) {
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
   try {
     const payload: QuotePayload = await request.json();
 
-    const { phone, eventDate, eventTime, eventType, guestCount, location, notes, cocktails } = payload;
+    const { phone, eventDate, eventTime, eventType, guestCount, location, notes, cocktails, addOns = [] } = payload;
     const name = payload.name?.trim();
     const email = payload.email?.trim();
 
@@ -125,6 +126,20 @@ export async function POST(request: Request) {
           </td>
         </tr>
 
+        <!-- Add-ons -->
+        ${
+          addOns.length
+            ? `<tr>
+          <td style="padding:28px 40px 0;">
+            <p style="margin:0 0 12px;font-size:11px;letter-spacing:.12em;color:#D4A017;text-transform:uppercase;font-family:monospace;">Add-ons</p>
+            <ul style="margin:0;padding:16px 16px 16px 32px;background:#f9f6f1;border-radius:8px;color:#111;font-size:14px;line-height:1.7;">
+              ${addOns.map((addOn) => `<li>${addOn}</li>`).join("")}
+            </ul>
+          </td>
+        </tr>`
+            : ""
+        }
+
         <!-- Notes -->
         ${
           notes
@@ -168,6 +183,7 @@ export async function POST(request: Request) {
       ``,
       `Cocktail Selection:`,
       ...cocktails.map((c) => `  • ${c.name}${c.variant ? ` (${c.variant})` : ""} — ${c.tag}`),
+      addOns.length ? `\nAdd-ons:\n${addOns.map((addOn) => `  • ${addOn}`).join("\n")}` : null,
       notes ? `\nNotes:\n${notes}` : null,
     ]
       .filter(Boolean)
