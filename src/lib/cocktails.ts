@@ -142,6 +142,16 @@ export const cocktails: Cocktail[] = [
     emoji: "🍋",
   },
   {
+    name: "Hugo Spritz",
+    slug: "hugo-spritz",
+    category: "spritz",
+    baseSpirit: "Elderflower Liqueur",
+    ingredients: ["Elderflower liqueur", "Mint", "Prosecco"],
+    image: "/images/cocktails/hugo-spritz-wide.png",
+    placeholderGradient: ["#7BA05B", "#D9E7B5"],
+    emoji: "🌿",
+  },
+  {
     name: "Sunday Passion Spritz",
     slug: "sunday-passion-spritz",
     category: "spritz",
