@@ -38,7 +38,7 @@ export default function ContactPage() {
                 Tell us about your event and your cocktail preferences — we&apos;ll put together a custom quote for you.
               </p>
               <Link
-                href="/book"
+                href="/services#choose-experience"
                 className="inline-flex items-center justify-center rounded-pill bg-red px-6 py-3 font-body text-sm font-bold uppercase tracking-widest text-white shadow-btn transition-all duration-300 hover:bg-gold hover:shadow-btn-hover hover:-translate-y-0.5"
               >
                 Get a Quote
@@ -60,7 +60,7 @@ export default function ContactPage() {
                 and send us everything we need to prepare your custom quote.
               </p>
               <Link
-                href="/book"
+                href="/services#choose-experience"
                 className="inline-flex items-center justify-center rounded-pill bg-red px-6 py-3 font-body text-sm font-bold uppercase tracking-widest text-white shadow-btn transition-all duration-300 hover:bg-gold hover:shadow-btn-hover hover:-translate-y-0.5"
               >
                 Get a Quote

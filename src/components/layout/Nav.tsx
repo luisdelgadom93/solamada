@@ -77,7 +77,7 @@ export default function Nav() {
           {/* CTA + Hamburger */}
           <div className="flex items-center gap-4">
             <Link
-              href="/book"
+              href="/services#choose-experience"
               className="hidden md:inline-flex items-center justify-center rounded-pill bg-red px-5 py-2.5 font-body text-sm font-bold uppercase tracking-widest text-white transition-all duration-300 hover:bg-gold hover:shadow-btn-hover"
             >
               Get a Quote
@@ -124,7 +124,8 @@ export default function Nav() {
           </Link>
         ))}
         <Link
-          href="/book"
+          href="/services#choose-experience"
+          onClick={() => setMobileOpen(false)}
           className="mt-4 inline-flex items-center justify-center rounded-pill bg-white px-8 py-4 font-body text-base font-bold uppercase tracking-widest text-red transition-all duration-300 hover:bg-gold hover:text-white"
         >
           Get a Quote

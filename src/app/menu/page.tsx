@@ -45,7 +45,7 @@ export default function MenuPage() {
             combination for your event.
           </p>
           <Link
-            href="/book"
+            href="/services#choose-experience"
             className="inline-flex items-center justify-center rounded-pill bg-red px-8 py-4 font-body text-base font-bold uppercase tracking-widest text-white shadow-btn transition-all duration-300 hover:bg-gold hover:shadow-btn-hover hover:-translate-y-0.5"
           >
             Get a Quote

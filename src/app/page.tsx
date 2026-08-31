@@ -54,7 +54,7 @@ export default function Home() {
             </Link>
             <div className="flex flex-col items-center gap-1">
               <Link
-                href="/book"
+                href="/services#choose-experience"
                 className="inline-flex items-center justify-center rounded-pill bg-red px-7 py-3.5 font-body text-sm font-bold uppercase tracking-widest text-white shadow-btn transition-all duration-300 hover:bg-gold hover:shadow-btn-hover hover:-translate-y-0.5"
               >
                 Get a Quote
@@ -230,7 +230,7 @@ export default function Home() {
             Select your cocktails, tell us about your event, and we&apos;ll send you a custom quote.
           </p>
           <Link
-            href="/book"
+            href="/services#choose-experience"
             className="inline-flex items-center justify-center rounded-pill bg-white px-8 py-4 font-body text-base font-bold uppercase tracking-widest text-red transition-all duration-300 hover:bg-gold hover:text-white hover:shadow-btn-hover hover:-translate-y-0.5"
           >
             Get a Quote

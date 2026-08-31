@@ -6,7 +6,7 @@ const navLinks = [
   { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
-  { href: "/book", label: "Get a Quote" },
+  { href: "/services#choose-experience", label: "Get a Quote" },
 ];
 
 export default function Footer() {
@@ -80,7 +80,7 @@ export default function Footer() {
               (786) 212-0577
             </a>
             <Link
-              href="/book"
+              href="/services#choose-experience"
               className="mt-2 inline-flex items-center justify-center rounded-pill bg-red px-5 py-2.5 font-body text-xs font-bold uppercase tracking-widest text-white transition-all duration-300 hover:bg-gold"
             >
               Get a Quote

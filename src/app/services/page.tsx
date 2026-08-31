@@ -170,7 +170,7 @@ export default function ServicesPage() {
     <main className="pt-28 pb-20">
 
       {/* ── Experience Selector ── */}
-      <section className="bg-black px-6 py-20 text-white">
+      <section id="choose-experience" className="scroll-mt-24 bg-black px-6 py-20 text-white">
         <div className="mx-auto max-w-5xl text-center">
           <p className="mb-4 font-mono text-xs uppercase tracking-widest text-gold">
             Choose Your Experience
