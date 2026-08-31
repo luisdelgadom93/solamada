@@ -875,7 +875,7 @@ export default function QuoteForm({
           </label>
           <textarea
             rows={4}
-            placeholder="Venue type, vibe, questions, special requests…"
+            placeholder="Venue type, indoor or outdoor setup, vibe, questions, special requests..."
             value={form.notes}
             onChange={(e) => setForm({ ...form, notes: e.target.value })}
             className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray transition-colors focus:border-gold focus:outline-none resize-none"
