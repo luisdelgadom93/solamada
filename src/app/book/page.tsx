@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cocktails } from "@/lib/cocktails";
 import { packages } from "@/lib/packages";
 import QuoteForm from "@/components/booking/QuoteForm";
+import MixologyQuoteForm from "@/components/booking/MixologyQuoteForm";
 
 export const metadata: Metadata = {
   title: "Get a Quote",
@@ -16,6 +17,7 @@ export default async function BookPage({
 }) {
   const params = await searchParams;
   const menuParam = params.menu;
+  const isMixology = params.experience === "mixology";
   const initialSlugs =
     typeof menuParam === "string"
       ? menuParam.split(",").filter(Boolean)
@@ -30,15 +32,17 @@ export default async function BookPage({
           No Credit Card Required
         </p>
         <h1 className="font-display text-5xl md:text-6xl font-bold mb-4">
-          Get a Quote
+          {isMixology ? "Cocktail & Mixology Quote" : "Get a Quote"}
         </h1>
         <p className="text-white/70 text-lg max-w-xl mx-auto leading-relaxed">
-          Select the cocktails you love, tell us about your event, and we&apos;ll send you a custom proposal within 24 hours.
+          {isMixology
+            ? "Tell us about your group, choose the cocktails you want to learn, and we'll create a custom experience for your gathering."
+            : "Select the cocktails you love, tell us about your event, and we'll send you a custom proposal within 24 hours."}
         </p>
       </section>
 
       {/* Base package overview */}
-      <section className="bg-warm-white py-14 px-6">
+      {!isMixology && <section className="bg-warm-white py-14 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <p className="font-mono text-xs text-gold tracking-widest uppercase mb-3">
             Your Starting Package
@@ -81,11 +85,15 @@ export default async function BookPage({
             </div>
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* Multi-step form */}
       <section className="py-12 bg-white">
-        <QuoteForm cocktails={cocktails} initialSlugs={initialSlugs} />
+        {isMixology ? (
+          <MixologyQuoteForm cocktails={cocktails} />
+        ) : (
+          <QuoteForm cocktails={cocktails} initialSlugs={initialSlugs} />
+        )}
       </section>
     </main>
   );

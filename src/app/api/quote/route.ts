@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export interface QuotePayload {
+  service?: "Mobile Bar Experience" | "Cocktail & Mixology Experience";
+  participantCount?: string;
   name: string;
   email: string;
   phone?: string;
@@ -31,7 +33,8 @@ export async function POST(request: Request) {
   try {
     const payload: QuotePayload = await request.json();
 
-    const { phone, eventDate, eventTime, eventDuration, eventType, guestCount, location, notes, cocktails, addOns = [] } = payload;
+    const { participantCount, phone, eventDate, eventTime, eventDuration, eventType, guestCount, location, notes, cocktails, addOns = [] } = payload;
+    const service = payload.service ?? "Mobile Bar Experience";
     const name = payload.name?.trim();
     const email = payload.email?.trim();
 
@@ -85,7 +88,7 @@ export async function POST(request: Request) {
         <!-- Header -->
         <tr>
           <td style="background:#111;padding:32px 40px;text-align:center;">
-            <p style="margin:0 0 4px;font-size:11px;letter-spacing:.15em;color:#D4A017;text-transform:uppercase;font-family:monospace;">New Quote Request</p>
+            <p style="margin:0 0 4px;font-size:11px;letter-spacing:.15em;color:#D4A017;text-transform:uppercase;font-family:monospace;">New ${service} Quote Request</p>
             <h1 style="margin:0;font-size:28px;font-weight:700;color:#fff;letter-spacing:-.01em;">Solamada</h1>
           </td>
         </tr>
@@ -94,7 +97,7 @@ export async function POST(request: Request) {
         <tr>
           <td style="padding:32px 40px 0;">
             <p style="margin:0;font-size:16px;color:#111;">
-              <strong>${name}</strong> submitted a quote request.
+              <strong>${name}</strong> submitted a quote request for the <strong>${service}</strong>.
               ${email ? `Reply directly to <a href="mailto:${email}" style="color:#D4A017;">${email}</a>.` : ""}
             </p>
           </td>
@@ -107,7 +110,9 @@ export async function POST(request: Request) {
             <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #eee;">
               ${detailRow("Name", name)}
               ${detailRow("Email", email)}
+              ${detailRow("Experience", service)}
               ${detailRow("Phone", phone)}
+              ${detailRow("Participants", participantCount)}
               ${detailRow("Event Date", eventDate)}
               ${detailRow("Event Start Time", eventTime)}
               ${detailRow("Event Duration", eventDuration ? `${eventDuration} hours` : undefined)}
@@ -121,7 +126,7 @@ export async function POST(request: Request) {
         <!-- Cocktail Selection -->
         <tr>
           <td style="padding:28px 40px 0;">
-            <p style="margin:0 0 12px;font-size:11px;letter-spacing:.12em;color:#D4A017;text-transform:uppercase;font-family:monospace;">Cocktail Selection</p>
+            <p style="margin:0 0 12px;font-size:11px;letter-spacing:.12em;color:#D4A017;text-transform:uppercase;font-family:monospace;">${service === "Cocktail & Mixology Experience" ? "Cocktails to Learn" : "Cocktail Selection"}</p>
             <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eee;border-radius:8px;overflow:hidden;">
               ${cocktailRows}
             </table>
@@ -173,10 +178,12 @@ export async function POST(request: Request) {
     // ── Plain-text fallback ─────────────────────────────────────────────────
 
     const text = [
-      `New Quote Request — Solamada`,
+      `New ${service} Quote Request — Solamada`,
       ``,
       `From: ${name} <${email}>`,
+      `Experience: ${service}`,
       phone ? `Phone: ${phone}` : null,
+      participantCount ? `Participants: ${participantCount}` : null,
       eventDate ? `Event Date: ${eventDate}` : null,
       eventTime ? `Event Start Time: ${eventTime}` : null,
       eventDuration ? `Event Duration: ${eventDuration} hours` : null,
@@ -184,7 +191,7 @@ export async function POST(request: Request) {
       guestCount ? `Guest Count: ${guestCount}` : null,
       location ? `Location: ${location}` : null,
       ``,
-      `Cocktail Selection:`,
+      service === "Cocktail & Mixology Experience" ? `Cocktails to Learn:` : `Cocktail Selection:`,
       ...cocktails.map((c) => `  • ${c.name}${c.variant ? ` (${c.variant})` : ""} — ${c.tag}`),
       addOns.length ? `\nAdd-ons:\n${addOns.map((addOn) => `  • ${addOn}`).join("\n")}` : null,
       notes ? `\nNotes:\n${notes}` : null,
@@ -198,7 +205,7 @@ export async function POST(request: Request) {
       from: "Solamada Quotes <quotes@solamada.com>",
       to: ["hello@solamada.com", "luisdelgadom93@gmail.com"],
       replyTo: email,
-      subject: `Quote Request — ${eventType || "Event"} · ${name}${eventDate ? ` · ${eventDate}` : ""}`,
+      subject: `${service} Quote — ${eventType || "Event"} · ${name}${eventDate ? ` · ${eventDate}` : ""}`,
       html,
       text,
     });
