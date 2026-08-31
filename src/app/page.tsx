@@ -14,8 +14,8 @@ export default function Home() {
         {/* Background image */}
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?q=80&w=2400&auto=format&fit=crop"
-            alt="Elegant cocktails"
+            src="/images/hero-mobile-bar-setup.png"
+            alt="Solamada mobile bar setup with crafted cocktails, fresh garnishes, and professional bar tools"
             fill
             priority
             className="object-cover object-center"
