@@ -18,7 +18,7 @@ export default function Home() {
             alt="Solamada mobile bar setup with crafted cocktails, fresh garnishes, and professional bar tools"
             fill
             priority
-            className="object-cover object-center"
+            className="object-cover object-[20%_center] md:object-center"
           />
           {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-black/60" />
