@@ -18,7 +18,7 @@ export default function AboutPage() {
           alt="Lake Maracaibo and the General Rafael Urdaneta Bridge beneath a bright golden-hour sky"
           fill
           sizes="100vw"
-          className="hidden object-cover object-center md:block"
+          className="hidden object-cover object-bottom md:block"
           priority
           unoptimized
         />
