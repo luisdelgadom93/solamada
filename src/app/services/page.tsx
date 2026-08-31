@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { packages } from "@/lib/packages";
 
 export const metadata: Metadata = {
   title: "Services",
@@ -92,18 +93,6 @@ function IconBag() {
 
 // ── Page ───────────────────────────────────────────────────────────────────
 
-const packageFeatures = [
-  "1 professional TABC-certified bartender",
-  "2 cocktails of your choice from our menu",
-  "General bartending for your provided beer, wine & soft drinks",
-  "All non-alcoholic mixers, syrups, fresh juices & garnishes",
-  "Coolers stocked with ice, still & sparkling water",
-  "Water dispenser included",
-  "Plastic drinkware included",
-  "Delivery, full setup & breakdown",
-  "3-hour minimum service window",
-];
-
 const addOns = [
   {
     icon: <IconBar />,
@@ -168,6 +157,8 @@ const bookingSteps = [
 ];
 
 export default function ServicesPage() {
+  const solamadaExperience = packages[0];
+
   return (
     <main className="pt-28 pb-20">
 
@@ -178,17 +169,16 @@ export default function ServicesPage() {
             Our Signature Package
           </p>
           <h1 className="font-display text-5xl md:text-6xl font-bold text-black mb-4">
-            The Solamada Experience
+            {solamadaExperience.name}
           </h1>
           <p className="text-warm-gray text-lg max-w-xl mx-auto leading-relaxed mb-10">
-            Our mobile bar package brings the craft, the setup, and the service.
-            You bring the spirits and the celebration.
+            {solamadaExperience.description}
           </p>
 
           {/* Feature grid in bordered box */}
           <div className="bg-white rounded-card border-2 border-gold shadow-card p-8 md:p-10 text-left mb-6">
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {packageFeatures.map((feature) => (
+              {solamadaExperience.features.map((feature) => (
                 <li key={feature} className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-gold shrink-0 mt-0.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 10l4 4 8-8" />
