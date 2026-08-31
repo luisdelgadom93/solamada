@@ -75,8 +75,27 @@ html {
   scroll-behavior: smooth;
 }
 
+@keyframes experience-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.experience-reveal {
+  animation: experience-reveal 500ms var(--ease-out-expo) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .experience-reveal {
+    animation: none;
   }
 }

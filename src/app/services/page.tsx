@@ -1,12 +1,8 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { packages } from "@/lib/packages";
-
-export const metadata: Metadata = {
-  title: "Services",
-  description:
-    "Explore Solamada's Mobile Bar Experience and social Cocktail & Mixology Experience for private and corporate gatherings in Houston.",
-};
 
 // ── Icon components ────────────────────────────────────────────────────────
 
@@ -158,6 +154,17 @@ const bookingSteps = [
 
 export default function ServicesPage() {
   const solamadaExperience = packages[0];
+  const [selectedExperience, setSelectedExperience] = useState<"mobile-bar" | "mixology" | null>(null);
+
+  const selectExperience = (experience: "mobile-bar" | "mixology") => {
+    setSelectedExperience(experience);
+    window.setTimeout(() => {
+      document.getElementById("selected-experience")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 50);
+  };
 
   return (
     <main className="pt-28 pb-20">
@@ -177,9 +184,15 @@ export default function ServicesPage() {
           </p>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <a
-              href="#mobile-bar"
-              className="group rounded-card border border-white/20 bg-white/5 p-8 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold hover:bg-white/10"
+            <button
+              type="button"
+              onClick={() => selectExperience("mobile-bar")}
+              aria-pressed={selectedExperience === "mobile-bar"}
+              className={`group rounded-card border p-8 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold hover:bg-white/10 ${
+                selectedExperience === "mobile-bar"
+                  ? "border-gold bg-white/10"
+                  : "border-white/20 bg-white/5"
+              }`}
             >
               <div className="mb-5 inline-flex rounded-full bg-gold/15 p-3">
                 <IconBar />
@@ -193,11 +206,17 @@ export default function ServicesPage() {
               <span className="text-xs font-bold uppercase tracking-widest text-gold">
                 Explore the experience ↓
               </span>
-            </a>
+            </button>
 
-            <a
-              href="#mixology"
-              className="group rounded-card border border-white/20 bg-white/5 p-8 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold hover:bg-white/10"
+            <button
+              type="button"
+              onClick={() => selectExperience("mixology")}
+              aria-pressed={selectedExperience === "mixology"}
+              className={`group rounded-card border p-8 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold hover:bg-white/10 ${
+                selectedExperience === "mixology"
+                  ? "border-gold bg-white/10"
+                  : "border-white/20 bg-white/5"
+              }`}
             >
               <div className="mb-5 inline-flex rounded-full bg-gold/15 p-3">
                 <IconCocktail />
@@ -211,13 +230,16 @@ export default function ServicesPage() {
               <span className="text-xs font-bold uppercase tracking-widest text-gold">
                 Explore the experience ↓
               </span>
-            </a>
+            </button>
           </div>
         </div>
       </section>
 
+      <div id="selected-experience" className="scroll-mt-24">
+      {selectedExperience === "mobile-bar" && (
+        <div className="experience-reveal">
       {/* ── Section 1: Our Signature Package ── */}
-      <section id="mobile-bar" className="scroll-mt-24 py-20 px-6">
+      <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <p className="font-mono text-xs text-gold tracking-widest uppercase mb-4">
             Our Signature Package
@@ -336,8 +358,13 @@ export default function ServicesPage() {
         </div>
       </section>
 
+        </div>
+      )}
+
+      {selectedExperience === "mixology" && (
+        <div className="experience-reveal">
       {/* ── Section 4: Cocktail & Mixology Experience ── */}
-      <section id="mixology" className="scroll-mt-24 bg-warm-white px-6 py-20">
+      <section className="bg-warm-white px-6 py-20">
         <div className="mx-auto max-w-4xl">
           <div className="mb-12 text-center">
             <p className="mb-4 font-mono text-xs uppercase tracking-widest text-gold">
@@ -419,6 +446,10 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
+
+        </div>
+      )}
+      </div>
 
     </main>
   );
