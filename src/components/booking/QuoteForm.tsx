@@ -3,10 +3,14 @@
 import { useState, useCallback } from "react";
 import Image from "next/image";
 import type { Cocktail } from "@/lib/cocktails";
-import { addOns as availableAddOns } from "@/lib/packages";
+import { addOns as availableAddOns, packages } from "@/lib/packages";
 import type { QuotePayload } from "@/app/api/quote/route";
 
 const INCLUDED_MAX = 2;
+const INCLUDED_HOURS = packages[0]?.minHours ?? 3;
+const ADDITIONAL_COCKTAILS = "Additional cocktails";
+const ADDITIONAL_SERVICE_HOUR = "Additional service hour";
+const SOFT_DRINKS = "Soft drinks";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const getFlavorOptions = (cocktail: Cocktail) =>
@@ -169,6 +173,7 @@ export default function QuoteForm({
     )
   );
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
+  const [softDrinkPreferences, setSoftDrinkPreferences] = useState("");
 
   // ── Step 2: Event details ──
   const [form, setForm] = useState({
@@ -177,6 +182,7 @@ export default function QuoteForm({
     phone: "",
     eventDate: "",
     eventTime: "",
+    eventDuration: String(INCLUDED_HOURS),
     eventType: "",
     guestCount: "",
     location: "",
@@ -215,6 +221,7 @@ export default function QuoteForm({
   }, []);
 
   const toggleAddOn = useCallback((name: string) => {
+    if (name === ADDITIONAL_COCKTAILS || name === ADDITIONAL_SERVICE_HOUR) return;
     setSelectedAddOns((current) =>
       current.includes(name) ? current.filter((item) => item !== name) : [...current, name]
     );
@@ -229,9 +236,18 @@ export default function QuoteForm({
     });
   }, []);
 
+  const adjustEventDuration = useCallback((amount: number) => {
+    setForm((current) => {
+      const duration = Number.parseInt(current.eventDuration, 10) || INCLUDED_HOURS;
+      return { ...current, eventDuration: String(Math.min(24, Math.max(1, duration + amount))) };
+    });
+  }, []);
+
   const includedCount = Math.min(selected.length, INCLUDED_MAX);
   const extraCount = Math.max(0, selected.length - INCLUDED_MAX);
   const remaining = Math.max(0, INCLUDED_MAX - selected.length);
+  const eventDuration = Number.parseInt(form.eventDuration, 10) || 0;
+  const additionalHours = Math.max(0, eventDuration - INCLUDED_HOURS);
 
   const handleSubmit = async () => {
     const name = form.name.trim();
@@ -252,12 +268,27 @@ export default function QuoteForm({
         `${cocktail?.name ?? slug} · ${flavor} flavor`
       );
     });
+    const extraCocktailNames = selected.slice(INCLUDED_MAX).map((slug) => cocktailMap.get(slug)?.name ?? slug);
+    const automaticPackageAddOns = [
+      ...(extraCocktailNames.length > 0
+        ? [`Additional cocktails · ${extraCocktailNames.join(", ")}`]
+        : []),
+      ...(additionalHours > 0
+        ? [`Additional service ${additionalHours === 1 ? "hour" : "hours"} · ${additionalHours}`]
+        : []),
+    ];
+    const manualAddOns = selectedAddOns.map((name) =>
+      name === SOFT_DRINKS && softDrinkPreferences.trim()
+        ? `${name} · ${softDrinkPreferences.trim()}`
+        : name
+    );
     const payload: QuotePayload = {
       name,
       email,
       phone: form.phone.trim() || undefined,
       eventDate: form.eventDate || undefined,
       eventTime: form.eventTime || undefined,
+      eventDuration: form.eventDuration || undefined,
       eventType: form.eventType || undefined,
       guestCount: form.guestCount || undefined,
       location: form.location.trim() || undefined,
@@ -275,7 +306,7 @@ export default function QuoteForm({
           tag: cocktailIndex < INCLUDED_MAX && flavorIndex < 2 ? "Included" as const : "Extra" as const,
         }));
       }),
-      addOns: [...selectedAddOns, ...automaticFlavorAddOns],
+      addOns: [...manualAddOns, ...automaticPackageAddOns, ...automaticFlavorAddOns],
     };
 
     try {
@@ -602,7 +633,7 @@ export default function QuoteForm({
           />
         </div>
 
-        {/* Date + Start time + Event type */}
+        {/* Date + Start time + Duration */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
@@ -617,7 +648,7 @@ export default function QuoteForm({
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
-              Event Time
+              Event Start Time
             </label>
             <input
               type="time"
@@ -629,16 +660,62 @@ export default function QuoteForm({
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
-              Event Type
+              Event Duration
             </label>
-            <input
-              type="text"
-              value={form.eventType}
-              onChange={(e) => setForm({ ...form, eventType: e.target.value })}
-              placeholder="Birthday, wedding, corporate event, bridal shower, holiday party? Tell us what you’re celebrating."
-              className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray transition-colors focus:border-gold focus:outline-none focus:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]"
-            />
+            <div className="flex w-full overflow-hidden rounded-input border-2 border-light-gray bg-white transition-colors focus-within:border-gold focus-within:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]">
+              <button
+                type="button"
+                onClick={() => adjustEventDuration(-1)}
+                disabled={eventDuration <= 1}
+                aria-label="Reduce event duration by one hour"
+                className="flex min-h-12 w-12 shrink-0 items-center justify-center border-r-2 border-light-gray text-2xl font-medium text-red transition-colors hover:bg-cream disabled:cursor-not-allowed disabled:text-medium-gray"
+              >
+                <span aria-hidden="true">−</span>
+              </button>
+              <div className="relative min-w-0 flex-1">
+                <input
+                  type="number"
+                  min="1"
+                  max="24"
+                  step="1"
+                  inputMode="numeric"
+                  value={form.eventDuration}
+                  onChange={(e) => setForm({ ...form, eventDuration: e.target.value })}
+                  aria-label="Event duration in hours"
+                  className="h-full w-full px-2 py-3 pr-8 text-center text-base font-bold text-black outline-none"
+                />
+                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-warm-gray">hrs</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => adjustEventDuration(1)}
+                disabled={eventDuration >= 24}
+                aria-label="Increase event duration by one hour"
+                className="flex min-h-12 w-12 shrink-0 items-center justify-center border-l-2 border-light-gray text-2xl font-medium text-red transition-colors hover:bg-cream disabled:cursor-not-allowed disabled:text-medium-gray"
+              >
+                <span aria-hidden="true">+</span>
+              </button>
+            </div>
+            <p className={`mt-1.5 text-xs ${additionalHours > 0 ? "font-bold text-gold" : "text-warm-gray"}`}>
+              {additionalHours > 0
+                ? `${additionalHours} additional ${additionalHours === 1 ? "hour" : "hours"} · Add-on`
+                : `${INCLUDED_HOURS} hours included`}
+            </p>
           </div>
+        </div>
+
+        {/* Event type */}
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
+            Event Type
+          </label>
+          <input
+            type="text"
+            value={form.eventType}
+            onChange={(e) => setForm({ ...form, eventType: e.target.value })}
+            placeholder="Birthday, wedding, corporate event, bridal shower, holiday party? Tell us what you’re celebrating."
+            className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray transition-colors focus:border-gold focus:outline-none focus:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]"
+          />
         </div>
 
         {/* Guest count + Location */}
@@ -725,32 +802,67 @@ export default function QuoteForm({
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {availableAddOns.map((addOn) => {
-              const isSelected = selectedAddOns.includes(addOn.name);
+              const isAutomaticCocktail = addOn.name === ADDITIONAL_COCKTAILS && extraDrinks.length > 0;
+              const isAutomaticHours = addOn.name === ADDITIONAL_SERVICE_HOUR && additionalHours > 0;
+              const isDynamic = addOn.name === ADDITIONAL_COCKTAILS || addOn.name === ADDITIONAL_SERVICE_HOUR;
+              const isAutomatic = isAutomaticCocktail || isAutomaticHours;
+              const isSelected = isAutomatic || selectedAddOns.includes(addOn.name);
               return (
-                <button
-                  key={addOn.name}
-                  type="button"
-                  onClick={() => toggleAddOn(addOn.name)}
-                  aria-pressed={isSelected}
-                  className={`flex min-h-28 items-start gap-3 rounded-card border-2 p-4 text-left transition-all duration-200 ${
-                    isSelected
-                      ? "border-gold bg-gold/10 shadow-[0_0_0_1px_#D4A017]"
-                      : "border-light-gray bg-white hover:border-gold/60"
-                  }`}
-                >
-                  <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${
-                    isSelected ? "border-gold bg-gold text-white" : "border-medium-gray text-transparent"
-                  }`}>
-                    ✓
-                  </span>
-                  <span>
-                    <span className="block font-display text-base font-bold text-black">{addOn.name}</span>
-                    <span className="mt-1 block text-xs leading-relaxed text-warm-gray">{addOn.description}</span>
-                    <span className={`mt-2 block text-xs font-bold uppercase tracking-wider ${isSelected ? "text-gold" : "text-medium-gray"}`}>
-                      {isSelected ? "Selected" : "Optional"}
+                <div key={addOn.name} className={`rounded-card border-2 transition-all duration-200 ${
+                  isSelected
+                    ? "border-gold bg-gold/10 shadow-[0_0_0_1px_#D4A017]"
+                    : "border-light-gray bg-white"
+                }`}>
+                  <button
+                    type="button"
+                    onClick={() => !isDynamic && toggleAddOn(addOn.name)}
+                    aria-pressed={isSelected}
+                    aria-disabled={isDynamic}
+                    className={`flex min-h-28 w-full items-start gap-3 p-4 text-left ${
+                      isDynamic ? "cursor-default" : "hover:bg-gold/5"
+                    }`}
+                  >
+                    <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${
+                      isSelected ? "border-gold bg-gold text-white" : "border-medium-gray text-transparent"
+                    }`}>
+                      ✓
                     </span>
-                  </span>
-                </button>
+                    <span>
+                      <span className="block font-display text-base font-bold text-black">{addOn.name}</span>
+                      <span className="mt-1 block text-xs leading-relaxed text-warm-gray">{addOn.description}</span>
+                      {isAutomaticCocktail && (
+                        <span className="mt-2 block text-xs leading-relaxed text-black">
+                          <strong>Included:</strong> {includedDrinks.map((slug) => cocktailMap.get(slug)?.name ?? slug).join(", ")}
+                          <br />
+                          <strong className="text-gold">Add-ons:</strong> {extraDrinks.map((slug) => cocktailMap.get(slug)?.name ?? slug).join(", ")}
+                        </span>
+                      )}
+                      {isAutomaticHours && (
+                        <span className="mt-2 block text-xs font-bold text-gold">
+                          {additionalHours} additional {additionalHours === 1 ? "hour" : "hours"}
+                        </span>
+                      )}
+                      <span className={`mt-2 block text-xs font-bold uppercase tracking-wider ${isSelected ? "text-gold" : "text-medium-gray"}`}>
+                        {isAutomatic ? "Added automatically" : isDynamic ? "Added automatically when needed" : isSelected ? "Selected" : "Optional"}
+                      </span>
+                    </span>
+                  </button>
+
+                  {addOn.name === SOFT_DRINKS && isSelected && (
+                    <div className="border-t border-gold/30 px-4 pb-4 pt-3">
+                      <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-warm-gray">
+                        Which soft drinks would you like?
+                      </label>
+                      <input
+                        type="text"
+                        value={softDrinkPreferences}
+                        onChange={(e) => setSoftDrinkPreferences(e.target.value)}
+                        placeholder="Soda, juices, tea, lemonade, etc."
+                        className="w-full rounded-input border-2 border-light-gray bg-white px-4 py-3 text-sm text-black placeholder-medium-gray transition-colors focus:border-gold focus:outline-none focus:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]"
+                      />
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
