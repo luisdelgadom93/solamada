@@ -89,63 +89,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Values */}
-      <section className="bg-warm-white py-16 px-6">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="font-display text-3xl font-bold text-black text-center mb-12">
-            What We Stand For
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: "🍹",
-                title: "Craft First",
-                desc: "Every cocktail is made with fresh ingredients, house-made syrups, and real technique. No shortcuts, no pre-mixes — just well-made drinks.",
-              },
-              {
-                icon: "☀️",
-                title: "Warm Hospitality",
-                desc: "We show up with energy, genuine care, and the soul of Venezuelan hospitality. We&apos;re not just behind the bar — we&apos;re part of your celebration.",
-              },
-              {
-                icon: "🎯",
-                title: "Built Around You",
-                desc: "We customize everything to your event — the cocktail selection, the setup, the style. Your vision guides every decision we make.",
-              },
-            ].map((value) => (
-              <div key={value.title} className="text-center">
-                <div className="text-5xl mb-4">{value.icon}</div>
-                <h3 className="font-display text-xl font-bold text-black mb-2">
-                  {value.title}
-                </h3>
-                <p className="text-warm-gray text-sm leading-relaxed">
-                  {value.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Certifications */}
-      <section className="py-16 px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-display text-2xl font-bold text-black mb-6">
-            Professional &amp; Certified
-          </h2>
-          <div className="inline-flex items-center gap-3 bg-white border border-light-gray rounded-card px-8 py-5 shadow-card">
-            <span className="text-2xl">🏅</span>
-            <div className="text-left">
-              <p className="font-semibold text-black">TABC Certified</p>
-              <p className="text-sm text-warm-gray">
-                All Solamada bartenders are Texas Alcoholic Beverage
-                Commission certified for responsible and professional service.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="bg-black py-20 px-6 text-center">
         <div className="max-w-2xl mx-auto">
