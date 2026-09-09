@@ -16,7 +16,9 @@ export interface QuotePayload {
   eventDuration?: string;
   eventType?: string;
   guestCount?: string;
-  location?: string;
+  eventAddress?: string;
+  city?: string;
+  zipCode?: string;
   notes?: string;
   cocktails: { name: string; variant?: string; tag: "Included" | "Extra" }[];
   addOns?: string[];
@@ -56,7 +58,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const { participantCount, phone, eventDate, eventTime, eventDuration, eventType, guestCount, location, notes, cocktails, addOns = [] } = payload;
+    const { participantCount, phone, eventDate, eventTime, eventDuration, eventType, guestCount, eventAddress, city, zipCode, notes, cocktails, addOns = [] } = payload;
     const service = payload.service ?? "Mobile Bar Experience";
     const name = payload.name?.trim();
     const email = payload.email?.trim();
@@ -141,7 +143,9 @@ export async function POST(request: Request) {
               ${detailRow("Event Duration", eventDuration ? `${eventDuration} hours` : undefined)}
               ${detailRow("Event Type", eventType)}
               ${detailRow("Guest Count", guestCount)}
-              ${detailRow("Location", location)}
+              ${detailRow("Event Address", eventAddress)}
+              ${detailRow("City", city)}
+              ${detailRow("ZIP Code", zipCode)}
             </table>
           </td>
         </tr>
@@ -212,7 +216,9 @@ export async function POST(request: Request) {
       eventDuration ? `Event Duration: ${eventDuration} hours` : null,
       eventType ? `Event Type: ${eventType}` : null,
       guestCount ? `Guest Count: ${guestCount}` : null,
-      location ? `Location: ${location}` : null,
+      `Event Address: ${eventAddress}`,
+      `City: ${city}`,
+      `ZIP Code: ${zipCode}`,
       ``,
       service === "Cocktail & Mixology Experience" ? `Cocktails to Learn:` : `Cocktail Selection:`,
       ...cocktails.map((c) => `  • ${c.name}${c.variant ? ` (${c.variant})` : ""} — ${c.tag}`),

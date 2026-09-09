@@ -6,7 +6,9 @@ export const quoteFieldLabels = {
   eventDuration: "Event Duration",
   eventType: "Event Type",
   guestCount: "Guest Count",
-  location: "Event City / Location",
+  eventAddress: "Event Address",
+  city: "City",
+  zipCode: "ZIP Code",
 } as const;
 
 export type QuoteField = keyof typeof quoteFieldLabels;
@@ -21,6 +23,9 @@ export function validateQuoteFields(values: Partial<Record<QuoteField, unknown>>
       continue;
     }
     let valid = true;
+    if (field === "eventAddress") valid = /\d/.test(value) && /[a-zA-Z]/.test(value) && value.trim().length >= 5;
+    if (field === "city") valid = /^[\p{L}\p{M} .'-]+$/u.test(value.trim()) && /\p{L}/u.test(value);
+    if (field === "zipCode") valid = /^\d{5}(-\d{4})?$/.test(value.trim());
     if (field === "email") valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
     if (field === "eventTime") valid = /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
     if (field === "eventDate") {

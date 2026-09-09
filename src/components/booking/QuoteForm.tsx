@@ -187,7 +187,9 @@ export default function QuoteForm({
     eventDuration: String(INCLUDED_HOURS),
     eventType: "",
     guestCount: "",
-    location: "",
+    eventAddress: "",
+    city: "",
+    zipCode: "",
     notes: "",
   });
 
@@ -296,7 +298,9 @@ export default function QuoteForm({
       eventDuration: form.eventDuration,
       eventType: form.eventType,
       guestCount: form.guestCount,
-      location: form.location.trim(),
+      eventAddress: form.eventAddress.trim(),
+      city: form.city.trim(),
+      zipCode: form.zipCode.trim(),
       notes: form.notes.trim() || undefined,
       cocktails: selected.flatMap((slug, cocktailIndex) => {
         const c = cocktailMap.get(slug);
@@ -788,21 +792,32 @@ export default function QuoteForm({
               </button>
             </div>
           </div>
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
-              Event City / Location <span className="text-red">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Houston, TX"
-              id="quote-location"
-              required
-              aria-invalid={Boolean(fieldErrors.location)}
-              aria-describedby={fieldErrors.location ? "quote-errors" : undefined}
-              value={form.location}
-              onChange={(e) => setForm({ ...form, location: e.target.value })}
-              className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray transition-colors focus:border-gold focus:outline-none focus:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]"
-            />
+          <div className="sm:col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {([
+              { field: "eventAddress", label: "Event Address", placeholder: "123 Main St, Apt / Suite", autoComplete: "street-address" },
+              { field: "city", label: "City", placeholder: "Houston", autoComplete: "address-level2" },
+              { field: "zipCode", label: "ZIP Code", placeholder: "77002", autoComplete: "postal-code" },
+            ] as const).map(({ field, label, placeholder, autoComplete }) => (
+              <div key={field} className={field === "eventAddress" ? "sm:col-span-2" : undefined}>
+                <label htmlFor={`quote-${field}`} className="mb-2 block text-xs font-bold uppercase tracking-widest text-warm-gray">
+                  {label} <span className="text-red">*</span>
+                </label>
+                <input
+                  type="text"
+                  id={`quote-${field}`}
+                  required
+                  autoComplete={autoComplete}
+                  pattern={field === "zipCode" ? "[0-9]{5}(-[0-9]{4})?" : undefined}
+                  maxLength={field === "zipCode" ? 10 : undefined}
+                  aria-invalid={Boolean(fieldErrors[field])}
+                  aria-describedby={fieldErrors[field] ? "quote-errors" : undefined}
+                  value={form[field]}
+                  onChange={(event) => setForm({ ...form, [field]: event.target.value })}
+                  placeholder={placeholder}
+                  className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray transition-colors focus:border-gold focus:outline-none"
+                />
+              </div>
+            ))}
           </div>
         </div>
 

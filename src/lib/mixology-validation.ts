@@ -11,7 +11,7 @@ export function isMixologyCocktailAvailable(cocktail: { category: string; slug: 
 }
 import { validateQuoteFields, type QuoteFieldErrors } from "@/lib/quote-validation";
 
-export const mixologyEventFields = ["eventDate", "eventTime", "eventType", "location"] as const;
+export const mixologyEventFields = ["eventDate", "eventTime", "eventType", "eventAddress", "city", "zipCode"] as const;
 
 export function validateMixologyEventFields(values: Partial<Record<typeof mixologyEventFields[number], unknown>>): QuoteFieldErrors {
   const allErrors = validateQuoteFields(values);

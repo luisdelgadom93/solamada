@@ -48,7 +48,7 @@ function nodes(node) {
 function input(field) { return nodes(render()).find(n => n.props?.id === `quote-${field}`); }
 function set(field, value) { input(field).props.onChange({ target: { value } }); }
 async function submit() { await nodes(render()).find(n => n.props?.onClick?.name === 'handleSubmit').props.onClick(); }
-const valid = { name: 'Jane Smith', email: 'jane@example.com', eventDate: '2026-10-24', eventTime: '18:30', eventDuration: '4', eventType: 'Wedding', guestCount: '75', location: 'Houston, TX' };
+const valid = { name: 'Jane Smith', email: 'jane@example.com', eventDate: '2026-10-24', eventTime: '18:30', eventDuration: '4', eventType: 'Wedding', guestCount: '75', eventAddress: '123 Main St, Suite 4', city: 'Houston', zipCode: '77002' };
 (async () => {
   render(); states[0] = 2;
   for (const [field, value] of Object.entries(valid)) { assert.equal(input(field).props.required, true); set(field, value); }
@@ -67,6 +67,11 @@ const valid = { name: 'Jane Smith', email: 'jane@example.com', eventDate: '2026-
     assert.equal(response.status,400);
   }
   assert.equal(sent.length,0);
+  for (const [field, bad] of [['eventAddress','Houston, TX'], ['eventAddress','12345'], ['city','123'], ['zipCode','7700'], ['zipCode','770001'], ['zipCode','ABCDE'], ['zipCode','77002-123']]) {
+    set(field,bad); await submit(); assert.equal(requests.length,0); set(field,valid[field]);
+    const response = await route.POST(new Request('http://localhost/api/quote', { method:'POST', body:JSON.stringify({...valid,cocktails:[],[field]:bad}) }));
+    assert.equal(response.status,400);
+  }
   await submit(); assert.equal(requests.length,1); assert.equal(sent.length,1);
   for (const [field,value] of Object.entries(valid)) {
     assert.equal(requests[0][field],value);
@@ -83,6 +88,12 @@ const valid = { name: 'Jane Smith', email: 'jane@example.com', eventDate: '2026-
     catalog.filter(c => c.category === 'classic' && c.slug !== 'cielito-anaranjado').map(c => c.slug));
   const classPayload = { ...valid, service: 'Cocktail & Mixology Experience', participantCount: '10', cocktails: [{ name: 'Margarita', tag: 'Included' }] };
   const post = payload => route.POST(new Request('http://localhost/api/quote', { method: 'POST', body: JSON.stringify(payload) }));
+  for (const zipCode of ['00501', '77002-1234']) {
+    for (const payload of [classPayload, { ...valid, cocktails: [] }]) {
+      assert.equal((await post({ ...payload, zipCode })).status, 200);
+      assert.ok(sent.at(-1).text.includes(`ZIP Code: ${zipCode}`));
+    }
+  }
   for (const value of ['', '0', '11', '999', '1.5', '-1', 'abc', null, 10]) {
     assert.equal((await post({ ...classPayload, participantCount: value })).status, 400);
   }
@@ -132,7 +143,7 @@ const valid = { name: 'Jane Smith', email: 'jane@example.com', eventDate: '2026-
     classSet(field, valid[field]);
   }
   for (const field of mixologyValidation.mixologyEventFields) {
-    for (const value of ['', '   ', ...(field === 'eventDate' ? ['2026-02-30'] : field === 'eventTime' ? ['24:00', '12:60'] : [])]) {
+    for (const value of ['', '   ', ...(field === 'eventDate' ? ['2026-02-30'] : field === 'eventTime' ? ['24:00', '12:60'] : field === 'eventAddress' ? ['Houston, TX', '12345'] : field === 'city' ? ['123'] : field === 'zipCode' ? ['7700', '770001', 'ABCDE', '77002-123'] : [])]) {
       const before = requests.length, emailCount = sent.length;
       classSet(field, value); await classSubmit();
       assert.equal(requests.length, before); assert.equal(focused, `mixology-${field}`);
@@ -144,6 +155,11 @@ const valid = { name: 'Jane Smith', email: 'jane@example.com', eventDate: '2026-
     }
   }
   await classSubmit();
+  for (const label of ['Event Address', 'City', 'ZIP Code']) {
+    assert.ok(sent.at(-1).html.includes(label));
+    assert.ok(sent.at(-1).text.includes(`${label}:`));
+  }
+  assert.equal('location' in requests.at(-1), false);
   for (const field of mixologyValidation.mixologyEventFields) {
     assert.equal(requests.at(-1)[field], valid[field]);
     assert.ok(sent.at(-1).html.includes(valid[field]));
@@ -151,5 +167,5 @@ const valid = { name: 'Jane Smith', email: 'jane@example.com', eventDate: '2026-
   }
   console.log('PASS: required class event fields blocked in component and API; valid class submission includes every required event value in HTML and text email.');
   console.log('PASS: class UI and API enforce 1–10 whole participants; class options exclude only Cielito Anaranjado; Mobile Bar still accepts 75 guests and Cielito Anaranjado.');
-  console.log('PASS: all eight required controls; missing/invalid values blocked in form and API; valid component → JSON → API → HTML/text email includes all eight values. No real emails sent.');
+  console.log('PASS: all required controls; missing/invalid values blocked in both forms and API; valid component → JSON → API → HTML/text email includes address, city and ZIP. ZIP+4 and leading zeros accepted. No real emails sent.');
 })().catch(error => { console.error(error); process.exitCode = 1; });
