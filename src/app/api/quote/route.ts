@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
+import { validateQuoteFields } from "@/lib/quote-validation";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -32,6 +33,16 @@ export async function POST(request: Request) {
 
   try {
     const payload: QuotePayload = await request.json();
+
+    if (!payload || typeof payload !== "object") {
+      return NextResponse.json({ error: "Invalid quote request." }, { status: 400 });
+    }
+    if (payload.service !== "Cocktail & Mixology Experience") {
+      const fieldErrors = validateQuoteFields(payload);
+      if (Object.keys(fieldErrors).length) {
+        return NextResponse.json({ error: Object.values(fieldErrors).join(" "), fieldErrors }, { status: 400 });
+      }
+    }
 
     const { participantCount, phone, eventDate, eventTime, eventDuration, eventType, guestCount, location, notes, cocktails, addOns = [] } = payload;
     const service = payload.service ?? "Mobile Bar Experience";

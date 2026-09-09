@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import Image from "next/image";
 import type { Cocktail } from "@/lib/cocktails";
 import { addOns as availableAddOns, packages } from "@/lib/packages";
+import { validateQuoteFields, type QuoteFieldErrors } from "@/lib/quote-validation";
 import type { QuotePayload } from "@/app/api/quote/route";
 
 const INCLUDED_MAX = 2;
@@ -11,7 +12,6 @@ const INCLUDED_HOURS = packages[0]?.minHours ?? 3;
 const ADDITIONAL_COCKTAILS = "Additional cocktails";
 const ADDITIONAL_SERVICE_HOUR = "Additional service hour";
 const SOFT_DRINKS = "Soft drinks";
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const getFlavorOptions = (cocktail: Cocktail) =>
   cocktail.variants?.map((variant) => variant === "Original" ? "Classic" : variant) ?? [];
@@ -160,6 +160,8 @@ export default function QuoteForm({
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  const [fieldErrors, setFieldErrors] = useState<QuoteFieldErrors>({});
+
   // ── Step 1: Cocktail selection ──
   const [selected, setSelected] = useState<string[]>(() =>
     initialSlugs.filter((s) => cocktails.some((c) => c.slug === s))
@@ -253,8 +255,11 @@ export default function QuoteForm({
     const name = form.name.trim();
     const email = form.email.trim();
 
-    if (!EMAIL_PATTERN.test(email)) {
-      setSubmitError("Please enter a valid email address.");
+    const errors = validateQuoteFields(form);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length) {
+      setSubmitError(Object.values(errors).join(" "));
+      document.getElementById(`quote-${Object.keys(errors)[0]}`)?.focus();
       return;
     }
 
@@ -286,12 +291,12 @@ export default function QuoteForm({
       name,
       email,
       phone: form.phone.trim() || undefined,
-      eventDate: form.eventDate || undefined,
-      eventTime: form.eventTime || undefined,
-      eventDuration: form.eventDuration || undefined,
-      eventType: form.eventType || undefined,
-      guestCount: form.guestCount || undefined,
-      location: form.location.trim() || undefined,
+      eventDate: form.eventDate,
+      eventTime: form.eventTime,
+      eventDuration: form.eventDuration,
+      eventType: form.eventType,
+      guestCount: form.guestCount,
+      location: form.location.trim(),
       notes: form.notes.trim() || undefined,
       cocktails: selected.flatMap((slug, cocktailIndex) => {
         const c = cocktailMap.get(slug);
@@ -599,6 +604,9 @@ export default function QuoteForm({
               type="text"
               required
               placeholder="Jane Smith"
+              id="quote-name"
+              aria-invalid={Boolean(fieldErrors.name)}
+              aria-describedby={fieldErrors.name ? "quote-errors" : undefined}
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray transition-colors focus:border-gold focus:outline-none focus:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]"
@@ -612,6 +620,9 @@ export default function QuoteForm({
               type="email"
               required
               placeholder="you@email.com"
+              id="quote-email"
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={fieldErrors.email ? "quote-errors" : undefined}
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray transition-colors focus:border-gold focus:outline-none focus:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]"
@@ -637,10 +648,14 @@ export default function QuoteForm({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
-              Event Date
+              Event Date <span className="text-red">*</span>
             </label>
             <input
               type="date"
+              id="quote-eventDate"
+              required
+              aria-invalid={Boolean(fieldErrors.eventDate)}
+              aria-describedby={fieldErrors.eventDate ? "quote-errors" : undefined}
               value={form.eventDate}
               onChange={(e) => setForm({ ...form, eventDate: e.target.value })}
               className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black transition-colors focus:border-gold focus:outline-none"
@@ -648,10 +663,14 @@ export default function QuoteForm({
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
-              Event Start Time
+              Event Start Time <span className="text-red">*</span>
             </label>
             <input
               type="time"
+              id="quote-eventTime"
+              required
+              aria-invalid={Boolean(fieldErrors.eventTime)}
+              aria-describedby={fieldErrors.eventTime ? "quote-errors" : undefined}
               value={form.eventTime}
               onChange={(e) => setForm({ ...form, eventTime: e.target.value })}
               aria-label="Event start time"
@@ -660,7 +679,7 @@ export default function QuoteForm({
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
-              Event Duration
+              Event Duration <span className="text-red">*</span>
             </label>
             <div className="flex w-full overflow-hidden rounded-input border-2 border-light-gray bg-white transition-colors focus-within:border-gold focus-within:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]">
               <button
@@ -679,6 +698,10 @@ export default function QuoteForm({
                   max="24"
                   step="1"
                   inputMode="numeric"
+                  id="quote-eventDuration"
+                  required
+                  aria-invalid={Boolean(fieldErrors.eventDuration)}
+                  aria-describedby={fieldErrors.eventDuration ? "quote-errors" : undefined}
                   value={form.eventDuration}
                   onChange={(e) => setForm({ ...form, eventDuration: e.target.value })}
                   aria-label="Event duration in hours"
@@ -707,10 +730,14 @@ export default function QuoteForm({
         {/* Event type */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
-            Event Type
+            Event Type <span className="text-red">*</span>
           </label>
           <input
             type="text"
+            id="quote-eventType"
+            required
+            aria-invalid={Boolean(fieldErrors.eventType)}
+            aria-describedby={fieldErrors.eventType ? "quote-errors" : undefined}
             value={form.eventType}
             onChange={(e) => setForm({ ...form, eventType: e.target.value })}
             placeholder="Birthday, wedding, corporate event, bridal shower, holiday party? Tell us what you’re celebrating."
@@ -722,7 +749,7 @@ export default function QuoteForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
-              Approximate Guest Count
+              Approximate Guest Count <span className="text-red">*</span>
             </label>
             <div className="flex w-full overflow-hidden rounded-input border-2 border-light-gray bg-white transition-colors focus-within:border-gold focus-within:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]">
               <button
@@ -740,6 +767,10 @@ export default function QuoteForm({
                 max="999"
                 step="1"
                 inputMode="numeric"
+                id="quote-guestCount"
+                required
+                aria-invalid={Boolean(fieldErrors.guestCount)}
+                aria-describedby={fieldErrors.guestCount ? "quote-errors" : undefined}
                 value={form.guestCount}
                 onChange={(e) => setForm({ ...form, guestCount: e.target.value })}
                 placeholder="0"
@@ -759,11 +790,15 @@ export default function QuoteForm({
           </div>
           <div>
             <label className="block text-xs font-bold uppercase tracking-widest text-warm-gray mb-2">
-              Event City / Location
+              Event City / Location <span className="text-red">*</span>
             </label>
             <input
               type="text"
               placeholder="Houston, TX"
+              id="quote-location"
+              required
+              aria-invalid={Boolean(fieldErrors.location)}
+              aria-describedby={fieldErrors.location ? "quote-errors" : undefined}
               value={form.location}
               onChange={(e) => setForm({ ...form, location: e.target.value })}
               className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray transition-colors focus:border-gold focus:outline-none focus:shadow-[0_0_0_3px_rgba(212,160,23,0.15)]"
@@ -886,10 +921,10 @@ export default function QuoteForm({
         <div className="pt-2">
           <button
             type="button"
-            disabled={!form.name.trim() || !form.email.trim() || submitting}
+            disabled={submitting}
             onClick={handleSubmit}
             className={`w-full inline-flex items-center justify-center gap-2 rounded-pill py-4 font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 ${
-              form.name && form.email && !submitting
+              !submitting
                 ? "bg-red text-white shadow-btn hover:bg-gold hover:shadow-btn-hover hover:-translate-y-0.5"
                 : "bg-light-gray text-warm-gray cursor-not-allowed"
             }`}
@@ -907,7 +942,7 @@ export default function QuoteForm({
             )}
           </button>
           {submitError && (
-            <p className="text-center text-sm text-red mt-3 font-medium">{submitError}</p>
+            <p id="quote-errors" role="alert" className="text-center text-sm text-red mt-3 font-medium">{submitError}</p>
           )}
           <p className="text-center text-xs text-warm-gray mt-3">
             No credit card required &middot; We&apos;ll respond within 24 hours
