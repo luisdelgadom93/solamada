@@ -27,6 +27,7 @@ const route = load('src/app/api/quote/route.ts', {
 let states = [], cursor = 0, requests = [], focused;
 const jsx = (type, props) => ({ type, props });
 const Form = load('src/components/booking/QuoteForm.tsx', {
+  '@/components/menu/OriginalRecipe': { OriginalRecipeMark: () => null, OriginalRecipeLegend: () => null },
   '@/lib/quote-validation': validation,
   '@/lib/packages': { packages: [{ minHours: 3 }], addOns: [] },
   'next/image': { default: 'img' },

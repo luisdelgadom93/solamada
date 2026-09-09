@@ -1,5 +1,7 @@
 "use client";
 
+import { OriginalRecipeMark, OriginalRecipeLegend } from "@/components/menu/OriginalRecipe";
+
 import { useState, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -128,7 +130,7 @@ function CocktailCard({
 
       {/* Card body */}
       <div className="bg-white p-5">
-        <h3 className="font-display text-base font-bold text-black mb-0.5">{cocktail.name}</h3>
+        <h3 className="font-display text-base font-bold text-black mb-0.5">{cocktail.name}<OriginalRecipeMark slug={cocktail.slug} /></h3>
         <p className="text-sm text-warm-gray leading-relaxed mb-3">
           {cocktail.ingredients.join(" · ")}
         </p>
@@ -302,6 +304,7 @@ export default function MenuClient({ cocktails }: { cocktails: Cocktail[] }) {
             </section>
           );
         })}
+        {cocktails.some((cocktail) => cocktail.slug === "cielito-anaranjado") && <OriginalRecipeLegend />}
       </div>
 
       {/* ── Floating bottom bar (selection mode only) ── */}

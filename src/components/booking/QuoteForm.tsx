@@ -1,5 +1,7 @@
 "use client";
 
+import { OriginalRecipeMark, OriginalRecipeLegend } from "@/components/menu/OriginalRecipe";
+
 import { useState, useCallback } from "react";
 import Image from "next/image";
 import type { Cocktail } from "@/lib/cocktails";
@@ -95,7 +97,7 @@ function CocktailCard({
 
       {/* Card body */}
       <div className="bg-white p-4">
-        <h3 className="font-display text-base font-bold text-black mb-0.5">{cocktail.name}</h3>
+        <h3 className="font-display text-base font-bold text-black mb-0.5">{cocktail.name}<OriginalRecipeMark slug={cocktail.slug} /></h3>
         <p className="text-xs text-warm-gray leading-relaxed mb-3">
           {cocktail.ingredients.join(" · ")}
         </p>
@@ -490,6 +492,7 @@ export default function QuoteForm({
               </section>
             );
           })}
+          {cocktails.some((cocktail) => cocktail.slug === "cielito-anaranjado") && <OriginalRecipeLegend />}
         </div>
 
         {/* Floating CTA */}
@@ -568,12 +571,12 @@ export default function QuoteForm({
             const flavors = selectedVariants[slug] ?? [];
             if (flavors.length === 0) return (
               <span key={slug} className="inline-flex items-center gap-1.5 bg-gold text-white text-xs font-bold px-3 py-1.5 rounded-full">
-                {c.emoji} {c.name} <span className="text-white/70 font-normal">Included</span>
+                {c.emoji} {c.name}<OriginalRecipeMark slug={c.slug} /> <span className="text-white/70 font-normal">Included</span>
               </span>
             );
             return flavors.map((flavor, flavorIndex) => (
               <span key={`${slug}-${flavor}`} className={`inline-flex items-center gap-1.5 text-white text-xs font-bold px-3 py-1.5 rounded-full ${flavorIndex < 2 ? "bg-gold" : "bg-black"}`}>
-                {c.emoji} {c.name} · {flavor}
+                {c.emoji} {c.name}<OriginalRecipeMark slug={c.slug} /> · {flavor}
                 <span className="text-white/70 font-normal">{flavorIndex < 2 ? "Included" : "Add-on"}</span>
               </span>
             ));
@@ -584,7 +587,7 @@ export default function QuoteForm({
             const flavors = selectedVariants[slug] ?? [];
             return (
               <span key={slug} className="inline-flex items-center gap-1.5 bg-black text-white text-xs font-bold px-3 py-1.5 rounded-full">
-                {c.emoji} {c.name}{flavors.length > 0 ? ` · ${flavors.join(" + ")}` : ""}
+                {c.emoji} {c.name}<OriginalRecipeMark slug={c.slug} />{flavors.length > 0 ? ` · ${flavors.join(" + ")}` : ""}
                 <span className="text-white/60 font-normal">Extra</span>
               </span>
             );
