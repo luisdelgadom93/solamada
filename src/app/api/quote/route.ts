@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
 import { validateQuoteFields } from "@/lib/quote-validation";
+import { isValidMixologyParticipantCount, MIXOLOGY_PARTICIPANT_ERROR, validateMixologyEventFields } from "@/lib/mixology-validation";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -37,7 +38,18 @@ export async function POST(request: Request) {
     if (!payload || typeof payload !== "object") {
       return NextResponse.json({ error: "Invalid quote request." }, { status: 400 });
     }
-    if (payload.service !== "Cocktail & Mixology Experience") {
+    if (payload.service === "Cocktail & Mixology Experience") {
+      const fieldErrors = validateMixologyEventFields(payload);
+      if (Object.keys(fieldErrors).length) {
+        return NextResponse.json({ error: Object.values(fieldErrors).join(" "), fieldErrors }, { status: 400 });
+      }
+      if (!isValidMixologyParticipantCount(payload.participantCount)) {
+        return NextResponse.json({ error: MIXOLOGY_PARTICIPANT_ERROR }, { status: 400 });
+      }
+      if (payload.cocktails?.some((cocktail) => cocktail.name.trim().toLowerCase() === "cielito anaranjado")) {
+        return NextResponse.json({ error: "Cielito Anaranjado is not available for the Cocktail & Mixology Class." }, { status: 400 });
+      }
+    } else {
       const fieldErrors = validateQuoteFields(payload);
       if (Object.keys(fieldErrors).length) {
         return NextResponse.json({ error: Object.values(fieldErrors).join(" "), fieldErrors }, { status: 400 });

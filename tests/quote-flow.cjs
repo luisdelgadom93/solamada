@@ -16,9 +16,11 @@ function load(file, dependencies, globals = {}) {
   return exports;
 }
 const validation = load('src/lib/quote-validation.ts', {});
+const mixologyValidation = load('src/lib/mixology-validation.ts', { '@/lib/quote-validation': validation });
 const sent = [];
 const route = load('src/app/api/quote/route.ts', {
   '@/lib/quote-validation': validation,
+  '@/lib/mixology-validation': mixologyValidation,
   'next/server': { NextResponse: { json: (body, options) => new Response(JSON.stringify(body), options) } },
   resend: { Resend: class { emails = { send: async message => { sent.push(message); return {}; } }; } },
 }, { process: { env: { RESEND_API_KEY: 'test-only' } } });
@@ -75,5 +77,79 @@ const valid = { name: 'Jane Smith', email: 'jane@example.com', eventDate: '2026-
   assert.ok(sent[0].html.includes('Event Start Time'));
   assert.equal(sent[0].replyTo,valid.email);
   assert.ok(nodes(render()).some(n => n.props?.children === 'Request received!'));
+  const catalog = load('src/lib/cocktails.ts', {}).cocktails;
+  assert.ok(catalog.some(c => c.slug === 'cielito-anaranjado'));
+  assert.deepEqual(catalog.filter(mixologyValidation.isMixologyCocktailAvailable).map(c => c.slug),
+    catalog.filter(c => c.category === 'classic' && c.slug !== 'cielito-anaranjado').map(c => c.slug));
+  const classPayload = { ...valid, service: 'Cocktail & Mixology Experience', participantCount: '10', cocktails: [{ name: 'Margarita', tag: 'Included' }] };
+  const post = payload => route.POST(new Request('http://localhost/api/quote', { method: 'POST', body: JSON.stringify(payload) }));
+  for (const value of ['', '0', '11', '999', '1.5', '-1', 'abc', null, 10]) {
+    assert.equal((await post({ ...classPayload, participantCount: value })).status, 400);
+  }
+  for (const value of ['1', '10']) assert.equal((await post({ ...classPayload, participantCount: value })).status, 200);
+  assert.ok(sent.at(-1).text.includes('Participants: 10'));
+  const excluded = [{ name: 'Cielito Anaranjado', tag: 'Included' }];
+  assert.equal((await post({ ...classPayload, cocktails: excluded })).status, 400);
+  assert.equal((await post({ ...valid, guestCount: '75', cocktails: excluded })).status, 200);
+  assert.ok(sent.at(-1).text.includes('Cielito Anaranjado'));
+
+  let classStates = [], classCursor = 0;
+  const ClassForm = load('src/components/booking/MixologyQuoteForm.tsx', {
+    '@/lib/mixology-validation': mixologyValidation,
+    'next/image': { default: 'img' },
+    'react/jsx-runtime': { jsx, jsxs: jsx },
+    react: { useCallback: fn => fn, useState: initial => {
+      const index = classCursor++;
+      if (!(index in classStates)) classStates[index] = initial;
+      return [classStates[index], value => { classStates[index] = typeof value === 'function' ? value(classStates[index]) : value; }];
+    } },
+  }, { document: { getElementById: id => ({ focus: () => { focused = id; } }) },
+    fetch: async (url, options) => { requests.push(JSON.parse(options.body)); return route.POST(new Request('http://localhost/api/quote', options)); } }).default;
+  const classRender = () => { classCursor = 0; return nodes(ClassForm({ cocktails: catalog })); };
+  const participantInput = () => classRender().find(n => n.props?.['aria-label'] === 'Number of participants');
+  const next = () => classRender().find(n => n.props?.children === 'Next: Choose Cocktails →');
+  assert.equal(participantInput().props.max, 10);
+  for (const value of ['', '0', '11', '1.5', '999']) {
+    participantInput().props.onChange({ target: { value } });
+    assert.equal(next().props.disabled, true);
+    next().props.onClick(); assert.equal(classStates[0], 1);
+  }
+  participantInput().props.onChange({ target: { value: '10' } });
+  const plus = classRender().find(n => n.props?.['aria-label'] === 'Add one participant');
+  assert.equal(plus.props.disabled, true); plus.props.onClick(); assert.equal(classStates[1], '10');
+  assert.equal(next().props.disabled, false); next().props.onClick();
+  assert.deepEqual(classRender().filter(n => n.props?.cocktail).map(n => n.props.cocktail.slug),
+    Array.from(catalog.filter(mixologyValidation.isMixologyCocktailAvailable), c => c.slug));
+  classRender().find(n => n.props?.cocktail).props.onToggle('margarita');
+  classRender().find(n => n.props?.children === 'Next: Event Details →').props.onClick();
+  const classInput = field => classRender().find(n => n.props?.id === `mixology-${field}`);
+  const classSet = (field, value) => classInput(field).props.onChange({ target: { value } });
+  const classSubmit = () => classRender().find(n => n.props?.onClick?.name === 'handleSubmit').props.onClick();
+  classRender().find(n => n.props?.placeholder === 'Jane Smith').props.onChange({ target: { value: valid.name } });
+  classRender().find(n => n.props?.type === 'email').props.onChange({ target: { value: valid.email } });
+  for (const field of mixologyValidation.mixologyEventFields) {
+    assert.equal(classInput(field).props.required, true);
+    classSet(field, valid[field]);
+  }
+  for (const field of mixologyValidation.mixologyEventFields) {
+    for (const value of ['', '   ', ...(field === 'eventDate' ? ['2026-02-30'] : field === 'eventTime' ? ['24:00', '12:60'] : [])]) {
+      const before = requests.length, emailCount = sent.length;
+      classSet(field, value); await classSubmit();
+      assert.equal(requests.length, before); assert.equal(focused, `mixology-${field}`);
+      assert.equal(classInput(field).props['aria-invalid'], true);
+      const response = await post({ ...classPayload, [field]: value });
+      assert.equal(response.status, 400); assert.ok((await response.json()).fieldErrors[field]);
+      assert.equal(sent.length, emailCount);
+      classSet(field, valid[field]);
+    }
+  }
+  await classSubmit();
+  for (const field of mixologyValidation.mixologyEventFields) {
+    assert.equal(requests.at(-1)[field], valid[field]);
+    assert.ok(sent.at(-1).html.includes(valid[field]));
+    assert.ok(sent.at(-1).text.includes(valid[field]));
+  }
+  console.log('PASS: required class event fields blocked in component and API; valid class submission includes every required event value in HTML and text email.');
+  console.log('PASS: class UI and API enforce 1–10 whole participants; class options exclude only Cielito Anaranjado; Mobile Bar still accepts 75 guests and Cielito Anaranjado.');
   console.log('PASS: all eight required controls; missing/invalid values blocked in form and API; valid component → JSON → API → HTML/text email includes all eight values. No real emails sent.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import Image from "next/image";
 import type { Cocktail } from "@/lib/cocktails";
 import type { QuotePayload } from "@/app/api/quote/route";
+import { MAX_MIXOLOGY_PARTICIPANTS, MIXOLOGY_PARTICIPANT_ERROR, isValidMixologyParticipantCount, isMixologyCocktailAvailable, validateMixologyEventFields } from "@/lib/mixology-validation";
+import type { QuoteFieldErrors } from "@/lib/quote-validation";
 
 const MAX_COCKTAILS = 3;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -76,7 +78,7 @@ function MixologyCocktailCard({
 }
 
 export default function MixologyQuoteForm({ cocktails }: { cocktails: Cocktail[] }) {
-  const classicCocktails = cocktails.filter((cocktail) => cocktail.category === "classic");
+  const classicCocktails = cocktails.filter(isMixologyCocktailAvailable);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [participants, setParticipants] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
@@ -94,13 +96,15 @@ export default function MixologyQuoteForm({ cocktails }: { cocktails: Cocktail[]
     location: "",
     notes: "",
   });
+  const [fieldErrors, setFieldErrors] = useState<QuoteFieldErrors>({});
 
-  const participantCount = Number.parseInt(participants, 10) || 0;
+  const participantCount = Number(participants) || 0;
+  const validParticipants = isValidMixologyParticipantCount(participants);
 
   const adjustParticipants = useCallback((amount: number) => {
     setParticipants((current) => {
       const count = Number.parseInt(current, 10) || 0;
-      return String(Math.min(999, Math.max(1, count + amount)));
+      return String(Math.min(MAX_MIXOLOGY_PARTICIPANTS, Math.max(1, count + amount)));
     });
   }, []);
 
@@ -120,8 +124,21 @@ export default function MixologyQuoteForm({ cocktails }: { cocktails: Cocktail[]
   }, []);
 
   const handleSubmit = async () => {
+    if (!validParticipants) {
+      setSubmitError(MIXOLOGY_PARTICIPANT_ERROR);
+      setStep(1);
+      return;
+    }
     const name = form.name.trim();
     const email = form.email.trim();
+
+    const errors = validateMixologyEventFields(form);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length) {
+      setSubmitError(Object.values(errors).join(" "));
+      document.getElementById(`mixology-${Object.keys(errors)[0]}`)?.focus();
+      return;
+    }
 
     if (!EMAIL_PATTERN.test(email)) {
       setSubmitError("Please enter a valid email address.");
@@ -138,10 +155,10 @@ export default function MixologyQuoteForm({ cocktails }: { cocktails: Cocktail[]
       name,
       email,
       phone: form.phone.trim() || undefined,
-      eventDate: form.eventDate || undefined,
-      eventTime: form.eventTime || undefined,
-      eventType: form.eventType.trim() || undefined,
-      location: form.location.trim() || undefined,
+      eventDate: form.eventDate,
+      eventTime: form.eventTime,
+      eventType: form.eventType.trim(),
+      location: form.location.trim(),
       notes: form.notes.trim() || undefined,
       cocktails: selected.map((slug) => ({
         name: cocktailMap.get(slug)?.name ?? slug,
@@ -225,18 +242,22 @@ export default function MixologyQuoteForm({ cocktails }: { cocktails: Cocktail[]
             <input
               type="number"
               min="1"
-              max="999"
+              max={MAX_MIXOLOGY_PARTICIPANTS}
+              step="1"
+              required
               inputMode="numeric"
               value={participants}
               onChange={(event) => setParticipants(event.target.value)}
               placeholder="0"
               aria-label="Number of participants"
+              aria-invalid={participants !== "" && !validParticipants}
+              aria-describedby="mixology-participant-help"
               className="min-w-0 flex-1 px-3 py-3 text-center text-lg font-bold text-black outline-none placeholder:text-medium-gray"
             />
             <button
               type="button"
               onClick={() => adjustParticipants(1)}
-              disabled={participantCount >= 999}
+              disabled={participantCount >= MAX_MIXOLOGY_PARTICIPANTS}
               aria-label="Add one participant"
               className="flex min-h-14 w-16 items-center justify-center border-l-2 border-light-gray text-2xl text-red hover:bg-cream disabled:cursor-not-allowed disabled:text-medium-gray"
             >
@@ -244,12 +265,16 @@ export default function MixologyQuoteForm({ cocktails }: { cocktails: Cocktail[]
             </button>
           </div>
 
+          <p id="mixology-participant-help" className={`mt-3 text-sm ${participants !== "" && !validParticipants ? "text-red" : "text-warm-gray"}`}>
+            {participants !== "" && !validParticipants ? MIXOLOGY_PARTICIPANT_ERROR : "Up to 10 participants per class."}
+          </p>
+
           <button
             type="button"
-            onClick={() => setStep(2)}
-            disabled={participantCount < 1}
+            onClick={() => { if (validParticipants) setStep(2); }}
+            disabled={!validParticipants}
             className={`mt-8 inline-flex w-full items-center justify-center rounded-pill py-4 text-sm font-bold uppercase tracking-widest transition-all ${
-              participantCount >= 1 ? "bg-red text-white shadow-btn hover:bg-gold" : "cursor-not-allowed bg-light-gray text-warm-gray"
+              validParticipants ? "bg-red text-white shadow-btn hover:bg-gold" : "cursor-not-allowed bg-light-gray text-warm-gray"
             }`}
           >
             Next: Choose Cocktails →
@@ -354,23 +379,23 @@ export default function MixologyQuoteForm({ cocktails }: { cocktails: Cocktail[]
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-warm-gray">Event Date</label>
-            <input type="date" value={form.eventDate} onChange={(event) => setForm({ ...form, eventDate: event.target.value })} className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black focus:border-gold focus:outline-none" />
+            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-warm-gray" htmlFor="mixology-eventDate">Event Date <span className="text-red">*</span></label>
+            <input type="date" id="mixology-eventDate" required aria-invalid={Boolean(fieldErrors.eventDate)} aria-describedby={fieldErrors.eventDate ? "mixology-errors" : undefined} value={form.eventDate} onChange={(event) => setForm({ ...form, eventDate: event.target.value })} className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black focus:border-gold focus:outline-none" />
           </div>
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-warm-gray">Event Start Time</label>
-            <input type="time" value={form.eventTime} onChange={(event) => setForm({ ...form, eventTime: event.target.value })} className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black focus:border-gold focus:outline-none" />
+            <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-warm-gray" htmlFor="mixology-eventTime">Event Start Time <span className="text-red">*</span></label>
+            <input type="time" id="mixology-eventTime" required aria-invalid={Boolean(fieldErrors.eventTime)} aria-describedby={fieldErrors.eventTime ? "mixology-errors" : undefined} value={form.eventTime} onChange={(event) => setForm({ ...form, eventTime: event.target.value })} className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black focus:border-gold focus:outline-none" />
           </div>
         </div>
 
         <div>
-          <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-warm-gray">Event Type</label>
-          <input type="text" value={form.eventType} onChange={(event) => setForm({ ...form, eventType: event.target.value })} placeholder="Birthday, friends night, corporate gathering..." className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray focus:border-gold focus:outline-none" />
+          <label htmlFor="mixology-eventType" className="mb-2 block text-xs font-bold uppercase tracking-widest text-warm-gray">Event Type <span className="text-red">*</span></label>
+          <input type="text" id="mixology-eventType" required aria-invalid={Boolean(fieldErrors.eventType)} aria-describedby={fieldErrors.eventType ? "mixology-errors" : undefined} value={form.eventType} onChange={(event) => setForm({ ...form, eventType: event.target.value })} placeholder="Birthday, friends night, corporate gathering..." className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray focus:border-gold focus:outline-none" />
         </div>
 
         <div>
-          <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-warm-gray">Event City / Location</label>
-          <input type="text" value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} placeholder="Houston, TX" className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray focus:border-gold focus:outline-none" />
+          <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-warm-gray" htmlFor="mixology-location">Event City / Location <span className="text-red">*</span></label>
+          <input type="text" id="mixology-location" required aria-invalid={Boolean(fieldErrors.location)} aria-describedby={fieldErrors.location ? "mixology-errors" : undefined} value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} placeholder="Houston, TX" className="w-full rounded-input border-2 border-light-gray px-4 py-3 text-sm text-black placeholder-medium-gray focus:border-gold focus:outline-none" />
         </div>
 
         <div>
@@ -388,7 +413,7 @@ export default function MixologyQuoteForm({ cocktails }: { cocktails: Cocktail[]
         >
           {submitting ? "Sending…" : "Send Mixology Quote Request ✦"}
         </button>
-        {submitError && <p className="text-center text-sm font-medium text-red">{submitError}</p>}
+        {submitError && <p id="mixology-errors" role="alert" className="text-center text-sm font-medium text-red">{submitError}</p>}
         <p className="text-center text-xs text-warm-gray">No credit card required · We&apos;ll respond within 24 hours</p>
       </div>
     </div>
