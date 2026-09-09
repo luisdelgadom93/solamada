@@ -159,7 +159,7 @@ export default function ServicesPage() {
   const selectExperience = (experience: "mobile-bar" | "mixology") => {
     setSelectedExperience(experience);
     window.setTimeout(() => {
-      document.getElementById("selected-experience")?.scrollIntoView({
+      document.getElementById(`${experience}-details`)?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
@@ -173,22 +173,22 @@ export default function ServicesPage() {
       <section id="choose-experience" className="scroll-mt-24 bg-black px-6 py-20 text-white">
         <div className="mx-auto max-w-5xl text-center">
           <p className="mb-4 font-mono text-xs uppercase tracking-widest text-gold">
-            Choose Your Experience
+            Our Signature Service
           </p>
           <h1 className="mb-4 font-display text-5xl font-bold md:text-6xl">
-            Two Ways to Celebrate
+            Mobile Bar Experience
           </h1>
           <p className="mx-auto mb-12 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg">
             Whether you want the bar fully handled or want to make cocktails together,
             Solamada brings the craft, warmth, and atmosphere to your gathering.
           </p>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="mx-auto max-w-4xl">
             <button
               type="button"
               onClick={() => selectExperience("mobile-bar")}
               aria-pressed={selectedExperience === "mobile-bar"}
-              className={`group rounded-card border p-8 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold hover:bg-white/10 ${
+              className={`group w-full rounded-card border border-gold/50 p-8 md:p-12 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold hover:bg-white/10 ${
                 selectedExperience === "mobile-bar"
                   ? "border-gold bg-white/10"
                   : "border-white/20 bg-white/5"
@@ -197,7 +197,7 @@ export default function ServicesPage() {
               <div className="mb-5 inline-flex rounded-full bg-gold/15 p-3">
                 <IconBar />
               </div>
-              <h2 className="mb-2 font-display text-2xl font-bold text-white">
+              <h2 className="mb-3 font-display text-3xl font-bold text-white md:text-4xl">
                 Mobile Bar Experience
               </h2>
               <p className="mb-5 text-sm leading-relaxed text-white/65">
@@ -208,35 +208,12 @@ export default function ServicesPage() {
               </span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => selectExperience("mixology")}
-              aria-pressed={selectedExperience === "mixology"}
-              className={`group rounded-card border p-8 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold hover:bg-white/10 ${
-                selectedExperience === "mixology"
-                  ? "border-gold bg-white/10"
-                  : "border-white/20 bg-white/5"
-              }`}
-            >
-              <div className="mb-5 inline-flex rounded-full bg-gold/15 p-3">
-                <IconCocktail />
-              </div>
-              <h2 className="mb-2 font-display text-2xl font-bold text-white">
-                Cocktail &amp; Mixology Experience
-              </h2>
-              <p className="mb-5 text-sm leading-relaxed text-white/65">
-                Interactive cocktail lessons where you&apos;ll learn to make up to 3 classic
-                cocktails yourself, with music and time to sip and socialize between each one.
-              </p>
-              <span className="text-xs font-bold uppercase tracking-widest text-gold">
-                Explore the experience ↓
-              </span>
-            </button>
+
           </div>
         </div>
       </section>
 
-      <div id="selected-experience" className="scroll-mt-24">
+      <div id="mobile-bar-details" className="scroll-mt-24">
       {selectedExperience === "mobile-bar" && (
         <div className="experience-reveal">
       {/* ── Section 1: Our Signature Package ── */}
@@ -362,9 +339,44 @@ export default function ServicesPage() {
         </div>
       )}
 
+      </div>
+
+      <section aria-labelledby="additional-experience-heading" className="border-t border-light-gray bg-warm-white px-6 py-12 md:py-16">
+        <div className="mx-auto max-w-3xl">
+          <p id="additional-experience-heading" className="mb-6 text-center font-mono text-xs uppercase tracking-widest text-gold">
+            Another Way to Celebrate with Solamada
+          </p>
+            <button
+              type="button"
+              onClick={() => selectExperience("mixology")}
+              aria-pressed={selectedExperience === "mixology"}
+              className={`group w-full rounded-card border p-6 md:p-8 text-left transition-all duration-300 hover:-translate-y-1 hover:border-gold hover:bg-gold/5 ${
+                selectedExperience === "mixology"
+                  ? "border-gold bg-gold/5"
+                  : "border-light-gray bg-white"
+              }`}
+            >
+              <div className="mb-5 inline-flex rounded-full bg-gold/15 p-3">
+                <IconCocktail />
+              </div>
+              <h2 className="mb-2 font-display text-2xl font-bold text-black">
+                Cocktail &amp; Mixology Class
+              </h2>
+              <p className="mb-5 text-sm leading-relaxed text-warm-gray">
+                Interactive cocktail lessons where you&apos;ll learn to make up to 3 classic
+                cocktails yourself, with music and time to sip and socialize between each one.
+              </p>
+              <span className="text-xs font-bold uppercase tracking-widest text-gold">
+                Explore the experience ↓
+              </span>
+            </button>
+        </div>
+      </section>
+
+      <div id="mixology-details" className="scroll-mt-24">
       {selectedExperience === "mixology" && (
         <div className="experience-reveal">
-      {/* ── Section 4: Cocktail & Mixology Experience ── */}
+      {/* ── Section 4: Cocktail & Mixology Class ── */}
       <section className="bg-warm-white px-6 py-20">
         <div className="mx-auto max-w-4xl">
           <div className="mb-12 text-center">
@@ -372,7 +384,7 @@ export default function ServicesPage() {
               Shake, Learn, Sip &amp; Enjoy
             </p>
             <h2 className="mb-4 font-display text-4xl font-bold text-black md:text-5xl">
-              Cocktail &amp; Mixology Experience
+              Cocktail &amp; Mixology Class
             </h2>
             <p className="mx-auto max-w-2xl text-lg leading-relaxed text-warm-gray">
               Turn your gathering into an interactive cocktail experience made for
